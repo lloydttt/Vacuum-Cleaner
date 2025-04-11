@@ -79,7 +79,9 @@
           "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F",
           "Drivers/CMSIS/Device/ST/STM32F4xx/Include",
           "Drivers/CMSIS/Include",
-          "Middlewares/ST/ARM/DSP/Inc"
+          "Middlewares/ST/ARM/DSP/Inc",
+          "Application",
+          "Module"
         ],
         "libList": [],
         "defineList": [
