@@ -6,20 +6,12 @@
 int flag = 0;
 int index = 0;
 void KBoardTest(){
-    if (flag == 0){
-        HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_SET);
 
-    }
-    else{
-        HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_RESET);
+      HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_SET);
 
-    }
-    if (index > 10000){
-        flag = !flag;
-        index = 0;
-    }
-    index++;
-
+      HAL_Delay(1000);
+      HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_RESET);
+      HAL_Delay(1000);
 }
 
 #endif

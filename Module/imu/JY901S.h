@@ -23,7 +23,7 @@ typedef struct
     float FANGLE[3];	
 }IMU_DATA;
 
-IMU_DATA _IMUData;
+// IMU_DATA _IMUData;
 
 
 // static void CmdProcess(void);
@@ -33,6 +33,6 @@ static void SensorUartSend(uint8_t *p_data, uint32_t uiSize);
 static void SensorDataUpdata(uint32_t uiReg, uint32_t uiRegNum);
 static void Delayms(uint16_t ucMs);
 void JY901S_Init(void);
-IMU_DATA JY901S_GetData(void); 
+void JY901S_GetData(void); 
 
 #endif // __JY901S_H__

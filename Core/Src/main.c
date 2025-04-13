@@ -25,7 +25,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "BoardTest.h"
+// #include "JY901S.h"
+// #include "BoardTest.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,6 +47,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+uint8_t rx_byte;
+HAL_StatusTypeDef doggy;
+uint8_t aRxBuffer[20];
 
 /* USER CODE END PV */
 
@@ -98,6 +102,8 @@ int main(void)
   MX_USART3_UART_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
+  // JY901S_Init();
+  HAL_UART_Receive_IT(&huart1, &rx_byte, 1);  
 
   /* USER CODE END 2 */
 
@@ -116,10 +122,13 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
-    KBoardTest();
+        // HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_SET);
+        // uint8_t aa = 'a';
 
-    HAL_Delay(50);
+        // HAL_UART_Transmit(&huart1, &aa, 1, 1000); // Echo back the received byte
+        // HAL_Delay(600);
+    /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -171,7 +180,32 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+// void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+// {
+//     if (huart->Instance == USART1)
+//     {
+//         // WitSerialDataIn(rx_byte);  // 把接收到的字节传给SDK
+//         HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_SET);
 
+//         // HAL_UART_Receive_IT(&huart1, &rx_byte, 1);  // 继续接收下一个字节
+//     }
+// }
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+
+    if (huart == &huart1)
+    {
+        // 做你自己的数据处理
+        // WitSerialDataIn(rx_byte);
+        HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_SET);
+
+        // 继续接收下一个字节
+        // HAL_UART_Receive_IT(&huart1, &rx_byte, 1);  
+        // uint8_t aa = 'a';
+        // HAL_UART_Transmit(&huart1, &aa, 1, 1000); // Echo back the received byte
+    }
+}
 /* USER CODE END 4 */
 
 /**

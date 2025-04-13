@@ -22,6 +22,7 @@
 
 /* USER CODE BEGIN 0 */
 #include "wit_c_sdk.h"
+
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
@@ -110,6 +111,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+    /* USART1 interrupt Init */
+    HAL_NVIC_SetPriority(USART1_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(USART1_IRQn);
   /* USER CODE BEGIN USART1_MspInit 1 */
 
   /* USER CODE END USART1_MspInit 1 */
@@ -134,6 +138,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+    /* USART3 interrupt Init */
+    HAL_NVIC_SetPriority(USART3_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(USART3_IRQn);
   /* USER CODE BEGIN USART3_MspInit 1 */
 
   /* USER CODE END USART3_MspInit 1 */
@@ -157,6 +164,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     */
     HAL_GPIO_DeInit(GPIOB, JY90_RX_Pin|JY90_TX_Pin);
 
+    /* USART1 interrupt Deinit */
+    HAL_NVIC_DisableIRQ(USART1_IRQn);
   /* USER CODE BEGIN USART1_MspDeInit 1 */
 
   /* USER CODE END USART1_MspDeInit 1 */
@@ -175,6 +184,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     */
     HAL_GPIO_DeInit(GPIOC, WIFI_RX_Pin|WIFI_TX_Pin);
 
+    /* USART3 interrupt Deinit */
+    HAL_NVIC_DisableIRQ(USART3_IRQn);
   /* USER CODE BEGIN USART3_MspDeInit 1 */
 
   /* USER CODE END USART3_MspDeInit 1 */
@@ -190,18 +201,21 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 //         HAL_UART_Receive_IT(&huart1, &rx_byte, 1);  // 继续接收下一个字节
 //     }
 // }
-void USART1_IRQHandler(void)
-{
-    uint8_t ucTemp;
+// void USART1_IRQHandler(void)
+// {
+//     uint8_t ucTemp;
 
-    HAL_UART_IRQHandler(&huart1);  // 让 HAL 管理中断状态机
+//     HAL_UART_IRQHandler(&huart1);  // 让 HAL 管理中断状态机
 
-    if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_RXNE))
-    {
-        ucTemp = (uint8_t)(huart1.Instance->DR & 0xFF);  // 读取接收寄存器
-        WitSerialDataIn(ucTemp);                         // 传入 SDK 接口
-        __HAL_UART_CLEAR_FLAG(&huart1, UART_FLAG_RXNE);  // 清除中断标志（可选）
-    }
-}
+//     if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_RXNE))
+//     {
+//         ucTemp = (uint8_t)(huart1.Instance->DR & 0xFF);  // 读取接收寄存器
+//         WitSerialDataIn(ucTemp);                         // 传入 SDK 接口
+//         __HAL_UART_CLEAR_FLAG(&huart1, UART_FLAG_RXNE);  // 清除中断标志（可选）
+//     }
+// }
+
+
+
 
 /* USER CODE END 1 */

@@ -70,7 +70,7 @@ void JY901S_Init(void){
 
 }
 
-IMU_DATA JY901S_GetData(void){
+void JY901S_GetData(void){
 	int i;
     if(s_cDataUpdate)
     {
@@ -79,9 +79,9 @@ IMU_DATA JY901S_GetData(void){
                 fAcc[i] = sReg[AX+i] / 32768.0f * 16.0f;
                 fGyro[i] = sReg[GX+i] / 32768.0f * 2000.0f;
                 fAngle[i] = sReg[Roll+i] / 32768.0f * 180.0f;
-                _IMUData.FACC[i] = fAcc[i];
-                _IMUData.FGYRO[i] = fGyro[i];
-                _IMUData.FANGLE[i] = fAngle[i];
+                // _IMUData.FACC[i] = fAcc[i];
+                // _IMUData.FGYRO[i] = fGyro[i];
+                // _IMUData.FANGLE[i] = fAngle[i];
            }
            if(s_cDataUpdate & ACC_UPDATE)
            {
@@ -104,7 +104,7 @@ IMU_DATA JY901S_GetData(void){
                s_cDataUpdate &= ~MAG_UPDATE;
            }
     } 
-    return _IMUData;
+    // return _IMUData;
 }
 
 

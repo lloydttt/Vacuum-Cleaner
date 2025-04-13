@@ -24,7 +24,11 @@
             "editor.insertSpaces": true,
             "editor.tabSize": 4,
             "editor.autoIndent": "advanced"
-        }
+        },
+        "cortex-debug.armToolchainPath": "D:/gcc-arm-none-eabi/gcc-arm-none-eabi-10.3-2021.10-win32/gcc-arm-none-eabi-10.3-2021.10/bin",
+        "cortex-debug.openocdPath": "D:/OpenOCD/openocd-v0.12.0-i686-w64-mingw32/bin/openocd.exe",
+        "cortex-debug.variableUseNaturalFormat": true
+    
     },
     "extensions": {
         "recommendations": [
