@@ -14,7 +14,7 @@ void KBoardTest(){
         HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_RESET);
 
     }
-    if (index > 1000){
+    if (index > 10000){
         flag = !flag;
         index = 0;
     }

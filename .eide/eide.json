@@ -81,7 +81,10 @@
           "Drivers/CMSIS/Include",
           "Middlewares/ST/ARM/DSP/Inc",
           "Application",
-          "Module"
+          "Module",
+          "Module/transit",
+          "Module/imu",
+          "Module/imu/wit_c_sdk"
         ],
         "libList": [],
         "defineList": [

@@ -57,7 +57,10 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin|KEY1_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin|WIFI_STATE_Pin|WIFI_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(MOTOR1_DRC_GPIO_Port, MOTOR1_DRC_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(WIFI_EN_GPIO_Port, WIFI_EN_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pins : USER_LED_Pin MOTOR2_DRC_Pin KEY1_Pin */
   GPIO_InitStruct.Pin = USER_LED_Pin|MOTOR2_DRC_Pin|KEY1_Pin;
@@ -81,15 +84,15 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : IRHIT_R_Pin BOOT1_Pin IR_CC_L1_Pin IR_BT_F_Pin
-                           IR_BT_L_Pin */
+                           IR_BT_L_Pin WIFI_STATE_Pin */
   GPIO_InitStruct.Pin = IRHIT_R_Pin|BOOT1_Pin|IR_CC_L1_Pin|IR_BT_F_Pin
-                          |IR_BT_L_Pin;
+                          |IR_BT_L_Pin|WIFI_STATE_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : MOTOR1_DRC_Pin WIFI_STATE_Pin WIFI_EN_Pin */
-  GPIO_InitStruct.Pin = MOTOR1_DRC_Pin|WIFI_STATE_Pin|WIFI_EN_Pin;
+  /*Configure GPIO pins : MOTOR1_DRC_Pin WIFI_EN_Pin */
+  GPIO_InitStruct.Pin = MOTOR1_DRC_Pin|WIFI_EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
