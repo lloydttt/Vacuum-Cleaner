@@ -27,7 +27,7 @@
 /* USER CODE BEGIN Includes */
 // #include "JY901S.h"
 #include "NJY901S.h"
-
+#include "stdio.h"
 // #include "BoardTest.h"
 /* USER CODE END Includes */
 
@@ -56,6 +56,12 @@ float FACC[3], FGYRO[3], FANGLE[3];
 float test;
 extern float d[9];
 // IMU_DATA doggy_data;
+
+uint8_t Direction;
+uint16_t counter;
+uint16_t enc1 = 0,enc1_old = 0;
+int16_t enc2 = 0;
+int32_t enc;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -67,6 +73,11 @@ void MX_FREERTOS_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+int __io_putchar(int ch)
+{
+    HAL_UART_Transmit(&huart3, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+    return ch;
+}
 
 /* USER CODE END 0 */
 
@@ -107,9 +118,10 @@ int main(void)
   MX_USART3_UART_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  // JY901S_Init();
-  HAL_UART_Receive_IT(&huart1, &rx_byte, 1);  
 
+  // HAL_UART_Receive_IT(&huart1, &rx_byte, 1);  
+  HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
+  HAL_TIM_PWM_Start_IT(&htim3, TIM_CHANNEL_2);
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -127,9 +139,31 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    // HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_SET);
-
-
+    static int flag = 0;
+    Direction = __HAL_TIM_IS_TIM_COUNTING_DOWN(&htim1);  
+    enc1 = (uint32_t)(__HAL_TIM_GET_COUNTER(&htim1));	//获取定时器的值
+	  if((Direction == 0) &(enc1 < enc1_old))				//正向旋转数值变小,说明进位
+	  {
+	  	enc2++;
+	  }
+	  if((Direction == 1) &(enc1 > enc1_old))				//反向旋转数值变小,说明借位
+	  {
+	  	enc2--;
+	  }
+	  enc1_old = enc1;									//更新enc1_old，便于下次计算
+	  enc = enc2<<16 | enc1;								//计算当前计数总值，带+-号
+	  counter++;											//主函数计数
+	  if(counter>1000)									//主函数每次运行约1ms，此处用于每1000ms发送一次数
+	  {
+	  	counter = 0;									//计数值清零
+	  	printf("Dir %d,	Enc2 %d, Enc1 %d, ENC %d\r\n",Direction,enc2,enc1,enc);//打印相关计数数据
+      flag = !flag;
+	  }
+	  HAL_Delay(1);
+    if(flag == 1)
+      HAL_GPIO_WritePin(MOTOR1_DRC_GPIO_Port, MOTOR1_DRC_Pin, GPIO_PIN_SET);
+    else if(flag == 0)
+      HAL_GPIO_WritePin(MOTOR1_DRC_GPIO_Port, MOTOR1_DRC_Pin, GPIO_PIN_RESET);
 
     /* USER CODE END WHILE */
 
@@ -184,17 +218,6 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-// void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-// {
-//     if (huart->Instance == USART1)
-//     {
-//         // WitSerialDataIn(rx_byte);  // 把接收到的字节传给SDK
-//         HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_SET);
-
-//         // HAL_UART_Receive_IT(&huart1, &rx_byte, 1);  // 继续接收下一个字节
-//     }
-// }
-
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 
@@ -208,9 +231,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         HAL_UART_Receive_IT(&huart1, &rx_byte, 1);  
 
     }
-    // HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_RESET);
 
 }
+
 /* USER CODE END 4 */
 
 /**
