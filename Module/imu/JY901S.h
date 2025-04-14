@@ -33,6 +33,6 @@ static void SensorUartSend(uint8_t *p_data, uint32_t uiSize);
 static void SensorDataUpdata(uint32_t uiReg, uint32_t uiRegNum);
 static void Delayms(uint16_t ucMs);
 void JY901S_Init(void);
-void JY901S_GetData(void); 
+void JY901S_GetData(float *FACC); 
 
 #endif // __JY901S_H__

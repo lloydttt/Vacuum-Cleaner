@@ -70,7 +70,7 @@ void JY901S_Init(void){
 
 }
 
-void JY901S_GetData(void){
+void JY901S_GetData(float *FACC){
 	int i;
     if(s_cDataUpdate)
     {
@@ -80,6 +80,12 @@ void JY901S_GetData(void){
                 fGyro[i] = sReg[GX+i] / 32768.0f * 2000.0f;
                 fAngle[i] = sReg[Roll+i] / 32768.0f * 180.0f;
                 // _IMUData.FACC[i] = fAcc[i];
+                FACC[i] = fAcc[i];
+                char txBuf[100];
+
+                snprintf(txBuf, sizeof(txBuf), "ACC: %.2f %.2f %.2f\r\n", fAcc[0], fAcc[1], fAcc[2]);
+                HAL_UART_Transmit(&huart3, (uint8_t*)txBuf, strlen(txBuf), HAL_MAX_DELAY);
+
                 // _IMUData.FGYRO[i] = fGyro[i];
                 // _IMUData.FANGLE[i] = fAngle[i];
            }
