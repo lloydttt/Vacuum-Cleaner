@@ -53,7 +53,8 @@ uint8_t rx_byte;
 HAL_StatusTypeDef doggy;
 uint8_t aRxBuffer[20];
 float FACC[3], FGYRO[3], FANGLE[3];
-
+float test;
+extern float d[9];
 // IMU_DATA doggy_data;
 /* USER CODE END PV */
 
@@ -106,7 +107,7 @@ int main(void)
   MX_USART3_UART_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  JY901S_Init();
+  // JY901S_Init();
   HAL_UART_Receive_IT(&huart1, &rx_byte, 1);  
 
   /* USER CODE END 2 */
@@ -126,17 +127,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    // HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_SET);
 
-    JY901S_GetData(FACC);
-    // HAL_UART_Transmit(&huart3, &rx_byte, 1, 1000);
-    // HAL_UART_Transmit(&huart3, (uint8_t *)&stcAngle, sizeof(struct SAngle), HAL_MAX_DELAY);
-    // HAL_UART_Transmit(&huart3, FACC, sizeof(struct SAngle), HAL_MAX_DELAY);
-    // char txBuf[100];
 
-    // // 发送加速度
-    // snprintf(txBuf, sizeof(txBuf), "ACC: %.2f %.2f %.2f\r\n", FACC[0], FACC[1], FACC[2]);
-    // HAL_UART_Transmit(&huart3, (uint8_t*)txBuf, strlen(txBuf), HAL_MAX_DELAY);
-    HAL_Delay(500);
 
     /* USER CODE END WHILE */
 
@@ -208,13 +201,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     if (huart == &huart1)
     {
         
-        WitSerialDataIn(rx_byte);
+        // WitSerialDataIn(rx_byte);
         HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_SET);
-        // uart1_read_data(rx_byte);
+        CopeSerialData(rx_byte);
         // 继续接收下一个字节
         HAL_UART_Receive_IT(&huart1, &rx_byte, 1);  
-        // uint8_t aa = 'a';
-        // HAL_UART_Transmit(&huart1, &aa, 1, 1000); // Echo back the received byte
+
     }
     // HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_RESET);
 
