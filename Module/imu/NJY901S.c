@@ -35,10 +35,6 @@ void CopeSerialData(unsigned char ucData)
 {
 	static unsigned char ucRxBuffer[12];
 	static unsigned char ucRxCnt = 0;	
-    // char txBuf[100];
-    // // // 发送加速度
-    // snprintf(txBuf, sizeof(txBuf), "ACC: %.2f %.2f %.2f\r\n", d[6], d[7], d[8]);
-    // HAL_UART_Transmit(&huart3, (uint8_t*)txBuf, strlen(txBuf), HAL_MAX_DELAY);
 	
 	ucRxBuffer[ucRxCnt++]=ucData;
     if (ucRxBuffer[0]!=0x55) //数据头不对，则重新开始寻找0x55数据头
@@ -52,7 +48,6 @@ void CopeSerialData(unsigned char ucData)
         }//数据不满11个，则返回
         else
         {
-            // HAL_UART_Transmit(&huart3, ucRxBuffer+1, 1, 1000); // Echo back the received byte
             switch(ucRxBuffer[1])
             {
                 case 0x50: stcTime.ucYear 		= ucRxBuffer[2];
@@ -69,11 +64,7 @@ void CopeSerialData(unsigned char ucData)
                             d[0]=stcAcc.a[0]/temp1;			//单位：m/s^2
                             d[1]=stcAcc.a[1]/temp1;
                             d[2]=stcAcc.a[2]/temp1;
-    //						z_a += d[2];
-    //						z_a =z_a-9.9;
                             y_a+=d[1];
-
-                            // HAL_UART_Transmit(&huart3, ucRxBuffer+9, 1, 1000); // Echo back the received byte
                             break;
                 case 0x52:	stcGyro.w[0] = ((unsigned short)ucRxBuffer[3]<<8)|ucRxBuffer[2];
                             stcGyro.w[1] = ((unsigned short)ucRxBuffer[5]<<8)|ucRxBuffer[4];
@@ -81,8 +72,6 @@ void CopeSerialData(unsigned char ucData)
                             d[3]=stcGyro.w[0]/temp2;		//单位：°/s
                             d[4]=stcGyro.w[1]/temp2;
                             d[5]=stcGyro.w[2]/temp2;
-                            // HAL_UART_Transmit(&huart3, ucRxBuffer+9, 1, 1000); // Echo back the received byte
-
                             break;
                 case 0x53:	stcAngle.Angle[0] = ((short)ucRxBuffer[3]<<8)|ucRxBuffer[2];
                             stcAngle.Angle[1] = ((short)ucRxBuffer[5]<<8)|ucRxBuffer[4];
@@ -91,32 +80,16 @@ void CopeSerialData(unsigned char ucData)
                             d[6]=stcAngle.Angle[0]/temp3;		//单位：°
                             d[7]=stcAngle.Angle[1]/temp3;
                             d[8]=stcAngle.Angle[2]/temp3;
-                            // snprintf(txBuf, sizeof(txBuf), "Raw Angle: %d %d %d\r\n", 
-                            // stcAngle.Angle[0], 
-                            // stcAngle.Angle[1], 
-                            // stcAngle.Angle[2]);
-                        //     HAL_UART_Transmit(&huart3, (uint8_t*)txBuf, strlen(txBuf), HAL_MAX_DELAY);
-                        // // 打印浮点角度值
-                        //     snprintf(txBuf, sizeof(txBuf), 
-                        //     "Angle(deg): %.2f %.2f %.2f\r\n", 
-                        //     d[6], d[7], d[8]);
-                        //     HAL_UART_Transmit(&huart3, (uint8_t*)txBuf, strlen(txBuf), HAL_MAX_DELAY);
-                        //     snprintf(txBuf, sizeof(txBuf), "temp3 = %.2f\r\n", temp3);
-                        //     HAL_UART_Transmit(&huart3, (uint8_t*)txBuf, strlen(txBuf), HAL_MAX_DELAY);
                             break;
                 case 0x54:	stcMag.h[0] = ((unsigned short)ucRxBuffer[3]<<8)|ucRxBuffer[2];
                             stcMag.h[1] = ((unsigned short)ucRxBuffer[5]<<8)|ucRxBuffer[4];
                             stcMag.h[2] = ((unsigned short)ucRxBuffer[7]<<8)|ucRxBuffer[6];
                             stcAngle.T = ((unsigned short)ucRxBuffer[9]<<8)|ucRxBuffer[8];
-                            // HAL_UART_Transmit(&huart3, ucRxBuffer+9, 1, 1000); // Echo back the received byte
-
                             break;
                 case 0x55:	stcDStatus.sDStatus[0] = ((unsigned short)ucRxBuffer[3]<<8)|ucRxBuffer[2];
                             stcDStatus.sDStatus[1] = ((unsigned short)ucRxBuffer[5]<<8)|ucRxBuffer[4];
                             stcDStatus.sDStatus[2] = ((unsigned short)ucRxBuffer[7]<<8)|ucRxBuffer[6];
                             stcDStatus.sDStatus[3] = ((unsigned short)ucRxBuffer[9]<<8)|ucRxBuffer[8];
-                            // HAL_UART_Transmit(&huart3, ucRxBuffer+9, 1, 1000); // Echo back the received byte
-
                             break;
                 case 0x56:	ucRxBuffer[2] = 0x12;ucRxBuffer[3] = 0x34;ucRxBuffer[4] = 0x56;ucRxBuffer[5] = 0x78;
                             CharToLong((char*)&stcPress.lPressure,(char*)&ucRxBuffer[2]);
@@ -130,17 +103,10 @@ void CopeSerialData(unsigned char ucData)
                             CharToLong((char*)&stcGPSV.lGPSVelocity,(char*)&ucRxBuffer[6]);
                             break;
             }
-            // time_xxx++;
+
             ucRxCnt=0;
-    
-                // // 发送加速度
-            // snprintf(txBuf, sizeof(txBuf), "Angle: %.2f %.2f %.2f\r\n", d[6], d[7], d[8]);
-            // HAL_UART_Transmit(&huart3, (uint8_t*)txBuf, strlen(txBuf), HAL_MAX_DELAY);
-        
-    
+            
         }
-
-
     }
 
 }

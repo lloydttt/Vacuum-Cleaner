@@ -193,29 +193,6 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
-// void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-// {
-//     if (huart->Instance == USART1)
-//     {
-//         WitSerialDataIn(rx_byte);  // 把接收到的字节传给SDK
-//         HAL_UART_Receive_IT(&huart1, &rx_byte, 1);  // 继续接收下一个字节
-//     }
-// }
-// void USART1_IRQHandler(void)
-// {
-//     uint8_t ucTemp;
-
-//     HAL_UART_IRQHandler(&huart1);  // 让 HAL 管理中断状态机
-
-//     if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_RXNE))
-//     {
-//         ucTemp = (uint8_t)(huart1.Instance->DR & 0xFF);  // 读取接收寄存器
-//         WitSerialDataIn(ucTemp);                         // 传入 SDK 接口
-//         __HAL_UART_CLEAR_FLAG(&huart1, UART_FLAG_RXNE);  // 清除中断标志（可选）
-//     }
-// }
-
-
 
 
 /* USER CODE END 1 */

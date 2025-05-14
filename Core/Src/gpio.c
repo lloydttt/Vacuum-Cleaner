@@ -51,27 +51,37 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, USER_LED_Pin|MOTOR2_DRC_Pin|KEY1_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, USER_LED_Pin|MOTOR2_DRC_Pin|MOTOR3_OUTPUT_Pin|FAN_pwm_Pin
+                          |KEY1_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(MOTOR1_DRC_GPIO_Port, MOTOR1_DRC_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, MOTOR2_ENCODER_VCC_Pin|MOTOR4_OUTPUT_Pin|MOTOR1_ENCODER_VCC_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(WIFI_EN_GPIO_Port, WIFI_EN_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin|WIFI_EN_Pin, GPIO_PIN_SET);
 
-  /*Configure GPIO pins : USER_LED_Pin MOTOR2_DRC_Pin KEY1_Pin */
-  GPIO_InitStruct.Pin = USER_LED_Pin|MOTOR2_DRC_Pin|KEY1_Pin;
+  /*Configure GPIO pins : USER_LED_Pin MOTOR2_DRC_Pin MOTOR3_OUTPUT_Pin FAN_pwm_Pin
+                           KEY1_Pin */
+  GPIO_InitStruct.Pin = USER_LED_Pin|MOTOR2_DRC_Pin|MOTOR3_OUTPUT_Pin|FAN_pwm_Pin
+                          |KEY1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : IR_SD_Pin IR_BT_R_Pin IR_CC_R1_Pin IRHIT_L_Pin
-                           FAN_FG_Pin */
-  GPIO_InitStruct.Pin = IR_SD_Pin|IR_BT_R_Pin|IR_CC_R1_Pin|IRHIT_L_Pin
-                          |FAN_FG_Pin;
+  /*Configure GPIO pins : MOTOR2_ENCODER_IN1_Pin IR_SD_Pin IR_BT_R_Pin IR_CC_R1_Pin
+                           IRHIT_L_Pin MOTOR1_ENCODER_IN1_Pin FAN_FG_Pin */
+  GPIO_InitStruct.Pin = MOTOR2_ENCODER_IN1_Pin|IR_SD_Pin|IR_BT_R_Pin|IR_CC_R1_Pin
+                          |IRHIT_L_Pin|MOTOR1_ENCODER_IN1_Pin|FAN_FG_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : MOTOR2_ENCODER_VCC_Pin MOTOR4_OUTPUT_Pin MOTOR1_ENCODER_VCC_Pin */
+  GPIO_InitStruct.Pin = MOTOR2_ENCODER_VCC_Pin|MOTOR4_OUTPUT_Pin|MOTOR1_ENCODER_VCC_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : SIGNAL1_Pin SIGNAL2_Pin */

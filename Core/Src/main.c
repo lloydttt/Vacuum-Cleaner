@@ -28,7 +28,7 @@
 // #include "JY901S.h"
 #include "NJY901S.h"
 #include "stdio.h"
-// #include "BoardTest.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -110,18 +110,18 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_TIM1_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_TIM9_Init();
   MX_USART1_UART_Init();
   MX_USART3_UART_Init();
-  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
   // HAL_UART_Receive_IT(&huart1, &rx_byte, 1);  
-  HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
+  // HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
   HAL_TIM_PWM_Start_IT(&htim3, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start_IT(&htim4, TIM_CHANNEL_3);
+  HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -139,31 +139,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    static int flag = 0;
-    Direction = __HAL_TIM_IS_TIM_COUNTING_DOWN(&htim1);  
-    enc1 = (uint32_t)(__HAL_TIM_GET_COUNTER(&htim1));	//获取定时器的值
-	  if((Direction == 0) &(enc1 < enc1_old))				//正向旋转数值变小,说明进位
-	  {
-	  	enc2++;
-	  }
-	  if((Direction == 1) &(enc1 > enc1_old))				//反向旋转数值变小,说明借位
-	  {
-	  	enc2--;
-	  }
-	  enc1_old = enc1;									//更新enc1_old，便于下次计算
-	  enc = enc2<<16 | enc1;								//计算当前计数总值，带+-号
-	  counter++;											//主函数计数
-	  if(counter>1000)									//主函数每次运行约1ms，此处用于每1000ms发送一次数
-	  {
-	  	counter = 0;									//计数值清零
-	  	printf("Dir %d,	Enc2 %d, Enc1 %d, ENC %d\r\n",Direction,enc2,enc1,enc);//打印相关计数数据
-      flag = !flag;
-	  }
-	  HAL_Delay(1);
-    if(flag == 1)
-      HAL_GPIO_WritePin(MOTOR1_DRC_GPIO_Port, MOTOR1_DRC_Pin, GPIO_PIN_SET);
-    else if(flag == 0)
-      HAL_GPIO_WritePin(MOTOR1_DRC_GPIO_Port, MOTOR1_DRC_Pin, GPIO_PIN_RESET);
+
 
     /* USER CODE END WHILE */
 
@@ -218,6 +194,25 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+/**
+ * @brief UART 接收完成回调函数。
+ * 
+ * 当 UART 接收操作完成时，HAL 库会自动调用此函数。该函数处理接收到的数据，
+ * 并准备 UART 以中断模式接收下一个字节。
+ * 
+ * @param huart 指向 UART 句柄结构体的指针。
+ * 
+ * 功能说明:
+ * - 检查 UART 实例是否为 `huart1`。
+ * - 如果是，使用 `CopeSerialData` 处理接收到的字节。
+ * - 通过设置对应的 GPIO 引脚点亮用户 LED。
+ * - 重新启用 UART 中断以接收下一个字节。
+ * 
+ * @note:
+ * - 确保 `rx_byte` 已正确定义并在作用域内可访问。
+ * - 假设 `USER_LED_GPIO_Port` 和 `USER_LED_Pin` 已正确配置用于用户 LED。
+ * - 假设 `CopeSerialData` 已实现并能正确处理接收到的字节。
+ */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 
