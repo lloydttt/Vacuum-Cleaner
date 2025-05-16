@@ -13,11 +13,7 @@
 // #ifndef __WHEEL_MOTOR_H__
 // #define __WHEEL_MOTOR_H__
 
-// uint8_t Direction;
-// uint16_t counter;
-// uint16_t enc1 = 0,enc1_old = 0;
-// int16_t enc2 = 0;
-// int32_t enc;
+
 
 // void PWM_Control(uint16_t speed);
 

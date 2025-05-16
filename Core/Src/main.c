@@ -49,7 +49,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t rx_byte;
+
 HAL_StatusTypeDef doggy;
 uint8_t aRxBuffer[20];
 float FACC[3], FGYRO[3], FANGLE[3];
@@ -62,6 +62,7 @@ uint16_t counter;
 uint16_t enc1 = 0,enc1_old = 0;
 int16_t enc2 = 0;
 int32_t enc;
+int ldoggy = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -117,21 +118,16 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  // HAL_UART_Receive_IT(&huart1, &rx_byte, 1);  
-  // HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
-  HAL_TIM_PWM_Start_IT(&htim3, TIM_CHANNEL_2);
-  HAL_TIM_PWM_Start_IT(&htim4, TIM_CHANNEL_3);
-  HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Init scheduler */
-  // osKernelInitialize();
+  osKernelInitialize();
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
-  // MX_FREERTOS_Init();
+  MX_FREERTOS_Init();
 
   /* Start scheduler */
-  // osKernelStart();
+  osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
 
@@ -194,40 +190,6 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-/**
- * @brief UART 接收完成回调函数。
- * 
- * 当 UART 接收操作完成时，HAL 库会自动调用此函数。该函数处理接收到的数据，
- * 并准备 UART 以中断模式接收下一个字节。
- * 
- * @param huart 指向 UART 句柄结构体的指针。
- * 
- * 功能说明:
- * - 检查 UART 实例是否为 `huart1`。
- * - 如果是，使用 `CopeSerialData` 处理接收到的字节。
- * - 通过设置对应的 GPIO 引脚点亮用户 LED。
- * - 重新启用 UART 中断以接收下一个字节。
- * 
- * @note:
- * - 确保 `rx_byte` 已正确定义并在作用域内可访问。
- * - 假设 `USER_LED_GPIO_Port` 和 `USER_LED_Pin` 已正确配置用于用户 LED。
- * - 假设 `CopeSerialData` 已实现并能正确处理接收到的字节。
- */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-
-    if (huart == &huart1)
-    {
-        
-        // WitSerialDataIn(rx_byte);
-        HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_SET);
-        CopeSerialData(rx_byte);
-        // 继续接收下一个字节
-        HAL_UART_Receive_IT(&huart1, &rx_byte, 1);  
-
-    }
-
-}
 
 /* USER CODE END 4 */
 

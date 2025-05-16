@@ -24,6 +24,7 @@ float temp3 = 182.04;
 //	float temp2=32768/2000.0;
 //	float temp3=32768/180.0;
 
+
 void CharToLong(char Dest[],char Source[])
 {
 	 *Dest 		= Source[3];
@@ -131,3 +132,4 @@ void clear_imu_data(void){
 	clear(( unsigned char *)&stcLonLat,sizeof(stcLonLat));
 	clear(( unsigned char *)&stcGPSV,sizeof(stcGPSV));
 }
+

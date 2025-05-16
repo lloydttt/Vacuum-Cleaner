@@ -21,7 +21,6 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
-#include "wit_c_sdk.h"
 
 /* USER CODE END 0 */
 

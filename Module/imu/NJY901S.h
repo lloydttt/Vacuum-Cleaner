@@ -138,18 +138,6 @@ extern struct SPress 		stcPress;
 extern struct SLonLat 		stcLonLat;
 extern struct SGPSV 		stcGPSV; 
 
-struct NJY901S_DATA
-{
-    struct STime		stcTime;
-    struct SAcc 		stcAcc;
-    struct SGyro 		stcGyro;
-    struct SAngle 		stcAngle;
-    struct SMag 		stcMag;
-    struct SDStatus 	stcDStatus;
-    struct SPress 		stcPress;
-    struct SLonLat 		stcLonLat;
-    struct SGPSV 		stcGPSV; 
-};
 
 extern float d[9];
 extern signed int x_a,y_a,z_a;
@@ -157,4 +145,5 @@ extern signed int x_a,y_a,z_a;
 void CopeSerialData(unsigned char ucData);
 void clear(unsigned char *pta, int size );
 void clear_imu_data(void);
+
 #endif

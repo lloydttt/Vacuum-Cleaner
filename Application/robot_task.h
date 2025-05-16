@@ -1,9 +1,10 @@
 #pragma once
+#include "cmsis_os.h"
 
-#include "WiFi_task.h"
-#include "ins_task.h"
-
-
-
+extern osThreadId_t insTaskHandle;
+extern osThreadId_t motorTaskHandle;
 
 
+// void StartMOTORTASK(void *argument);
+void OSTaskInit(void);
+void StartINSTASK(void *argument);
