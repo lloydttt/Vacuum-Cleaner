@@ -50,18 +50,7 @@
 
 /* USER CODE BEGIN PV */
 
-HAL_StatusTypeDef doggy;
-uint8_t aRxBuffer[20];
-float FACC[3], FGYRO[3], FANGLE[3];
-float test;
 extern float d[9];
-// IMU_DATA doggy_data;
-
-uint8_t Direction;
-uint16_t counter;
-uint16_t enc1 = 0,enc1_old = 0;
-int16_t enc2 = 0;
-int32_t enc;
 int ldoggy = 0;
 /* USER CODE END PV */
 
