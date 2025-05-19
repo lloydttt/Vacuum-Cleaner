@@ -8,19 +8,96 @@
  * @copyright
  * Copyright (c) 2025 Vacuum Cleaner Project. All rights reserved.
  ******************************************************************************/
-#include "main.h"
+#include "Wheel_motor.h"
+#include "tim.h"
+
+MAIN_MOTOR_TYPE left_main_motor = {
+    .instance = 0,
+    .pwm_num = 99,
+    .drc = 0,
+    .speed = 0,
+    .distance = 0
+};
+MAIN_MOTOR_TYPE right_main_motor = {
+    .instance = 1,
+    .pwm_num = 1,
+    .drc = 1,
+    .speed = 0,
+    .distance = 0
+};
+
+uint32_t count = 0;
+uint32_t last_tick = 0;
+float speed= 0;
+void motor_init(MAIN_MOTOR_TYPE *motor)
+{
+    if(motor->instance == 0){
+        if(motor->drc == 0)
+        {
+            HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
+        }
+        else if(motor->drc == 1)
+        {
+
+            HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_SET);
+
+        }
+    }else if(motor->instance == 1){
+        if(motor->drc == 0)
+        {
+            HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_SET);
+        }
+        else if(motor->drc == 1)
+        {
+
+            HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_RESET);
+        }
+    }
+    HAL_TIM_PWM_Start_IT(&htim3, TIM_CHANNEL_2);
+}
+
+//左右轮获取速度
+void Get_state(void)
+{
 
 
-/******************************************************************************
- * @brief  PWM output control function
- * @param  None 
- * @note   None
- ******************************************************************************/
-void PWM_genrate(uint16_t speed){
 
 
 
-} 
+}
+
+void Motor_control(MAIN_MOTOR_TYPE *motor)
+{
+    if(motor->instance == 0){
+
+
+        
+    }else if(motor->instance == 1){
+
+    }
+
+
+}
+
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == MOTOR1_ENCODER_IN1_Pin)
+    {
+        uint32_t now = HAL_GetTick(); 
+        if (count == 615)      
+        {
+            uint32_t time_diff = now - last_tick; // Time difference in milliseconds
+            speed = (6.4f * PI / time_diff) * 1000.0f; // Speed in cm per second  
+            last_tick = now;
+            count = 0;
+
+            // Print or store the calculated speed
+
+        }
+        count++;
+    }
+}
 
 
 
@@ -30,49 +107,3 @@ void PWM_genrate(uint16_t speed){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//     // static int flag = 0;
-//     // Direction = __HAL_TIM_IS_TIM_COUNTING_DOWN(&htim1);  
-//     // enc1 = (uint32_t)(__HAL_TIM_GET_COUNTER(&htim1));	//获取定时器的值
-
-// 	  // if((Direction == 0) &(enc1 < enc1_old))				//正向旋转数值变小,说明进位
-// 	  // {
-// 	  // 	enc2++;
-// 	  // }
-// 	  // if((Direction == 1) &(enc1 > enc1_old))				//反向旋转数值变小,说明借位
-// 	  // {
-// 	  // 	enc2--;
-// 	  // }
-// 	  // enc1_old = enc1;									//更新enc1_old，便于下次计算
-// 	  // enc = enc2 << 16 | enc1;								//计算当前计数总值，带+-号
-// 	  // counter++;											//主函数计数
-// 	  // if(counter>1000)									//主函数每次运行约1ms，此处用于每1000ms发送一次数
-// 	  // {
-// 	  // 	counter = 0;									//计数值清零
-// 	  // 	printf("Dir %d,	Enc2 %d, Enc1 %d, ENC %d\r\n",Direction,enc2,enc1,enc);//打印相关计数数据
-//     //   flag = !flag;
-// 	  // }
-// 	  // HAL_Delay(1);
-//     // if(flag == 1)
-//     //   HAL_GPIO_WritePin(MOTOR1_DRC_GPIO_Port, MOTOR1_DRC_Pin, GPIO_PIN_SET);
-//     // else if(flag == 0)
-//     //   HAL_GPIO_WritePin(MOTOR1_DRC_GPIO_Port, MOTOR1_DRC_Pin, GPIO_PIN_RESET);

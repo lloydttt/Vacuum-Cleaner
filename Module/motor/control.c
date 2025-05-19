@@ -1,7 +1,24 @@
 #include "control.h"
-
-
+#include "Wheel_motor.h"
 //motor controling algorithm
+
+PID right_main_motor_pid = {
+    .kp = 0.5,
+    .ki = 0.0,
+    .kd = 0.0,
+    .MaxIntegral = 0,
+    .MaxOutput = 100
+};
+
+PID left_main_motor_pid = {
+    .kp = 0.5,
+    .ki = 0.0,
+    .kd = 0.0,
+    .MaxIntegral = 0,
+    .MaxOutput = 100
+};
+
+
 
 
 void PID_Init(PID *pid, float P, float I, float D, float maxO, float maxI) {
@@ -42,3 +59,20 @@ void PID_calc(PID *pid, float target, float feedback) {
     else if (pid->output < -pid->MaxOutput)
         pid->output = -pid->MaxOutput;
 }
+
+
+//主要运动轮PID控制
+
+
+
+
+
+
+
+
+
+
+
+//mode 
+
+

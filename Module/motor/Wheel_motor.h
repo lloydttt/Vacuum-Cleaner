@@ -9,15 +9,30 @@
  * Copyright (c) 2025 Vacuum Cleaner Project. All rights reserved.
  ******************************************************************************/
 #pragma once
+#include "main.h"
 
-#ifndef __WHEEL_MOTOR_H__
-#define __WHEEL_MOTOR_H__
+#define PI 3.14159265358979323846
+
+
+typedef struct{
+    uint8_t instance; // 0: left, 1: right
+    uint8_t pwm_num;
+    uint8_t drc;   //0 low 1 high, RIGHT HIGH FORWARD, LEFT LOW FORWARD
+    float speed; // 速度
+    uint16_t distance; // 距离
+    
+}MAIN_MOTOR_TYPE;
+
 
 // PWM 速度转换，状态读取，控制接口
+void motor_init(MAIN_MOTOR_TYPE *motor);
 
-void PWM_genrate(uint16_t speed);
+//一圈615     d = 64mm 
+inline void PWM_genrate(uint16_t speed){
+
+
+}
 void Get_state(void);
-void Motor_control(void);
+void Motor_control(MAIN_MOTOR_TYPE *motor);
 
 
-#endif

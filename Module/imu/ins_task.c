@@ -21,12 +21,27 @@ void data_transmit(){
 void ins_init(void){
     clear_imu_data();
     HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_SET);
+    HAL_UART_Receive_IT(&huart1, &rx_byte, 1);
+}
+// void ins_task(void){
+//     HAL_UART_Receive(&huart1, &rx_byte, 1, 100); // 阻塞100ms接收一个字节
+//     CopeSerialData(rx_byte);
+//     // data_transmit();
+//     ldoggy += 1;
+// }   
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+
+    if (huart == &huart1)
+    {
+
+        // WitSerialDataIn(rx_byte);
+        HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_SET);
+        CopeSerialData(rx_byte);
+        // 继续接收下一个字节
+        HAL_UART_Receive_IT(&huart1, &rx_byte, 1);  
+
+    }
 
 }
-void ins_task(void){
-    // HAL_UART_Receive(&huart1, &rx_byte, 1, 100); // 阻塞100ms接收一个字节
-    // CopeSerialData(rx_byte);
-    // data_transmit();
-    ldoggy += 1;
-}   
-
