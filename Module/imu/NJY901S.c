@@ -19,6 +19,7 @@ signed  int x_a=0,y_a=0,z_a=0;
 float temp1 = 208.98;
 float temp2 = 16.384;
 float temp3 = 182.04;
+int flag = 0;
 //	float g=9.8;
 //	float temp1=32768/16/g;
 //	float temp2=32768/2000.0;
@@ -33,7 +34,7 @@ void CharToLong(char Dest[],char Source[])
 	 *(Dest+3) 	= Source[0];
 }
 void CopeSerialData(unsigned char ucData)
-{
+{   
 	static unsigned char ucRxBuffer[12];
 	static unsigned char ucRxCnt = 0;	
 	
@@ -42,9 +43,11 @@ void CopeSerialData(unsigned char ucData)
 	{
 		// time_xxx++;
 		ucRxCnt=0;
+        // flag = 0;
 		return;																																	  
 	}else{
         if (ucRxCnt<11) {
+            // flag = 0;
             return;
         }//数据不满11个，则返回
         else
@@ -106,6 +109,7 @@ void CopeSerialData(unsigned char ucData)
             }
 
             ucRxCnt=0;
+            flag = 1;
             
         }
     }

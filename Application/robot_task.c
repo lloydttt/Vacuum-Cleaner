@@ -22,7 +22,7 @@ __attribute__((noreturn)) void StartINSTASK(void *argument)
 
     for (;;)
     {
-        // ins_task();
+        ins_task();
         osDelay(1);  // 1ms delay
     }
 }
