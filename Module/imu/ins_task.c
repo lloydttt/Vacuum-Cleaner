@@ -5,7 +5,16 @@
 #include "string.h"
 #include "transit_task.h"
 #include "math.h"
+#include "control.h"
 extern float d[9];
+extern uint8_t rx3_byte;    // USART1 接收缓冲
+extern float cmd_linear_x;
+extern float cmd_angular_z;
+
+extern uint8_t rx_state;
+extern uint8_t rx_len;
+extern uint8_t rx_index;
+extern uint8_t rx_payload[8];
 //---------------------------
 #define START_BYTE 0xA5
 #define TYPE_IMU   0x01
@@ -72,7 +81,7 @@ void sendIMUData(UART_HandleTypeDef *huart, IMUData *imu) {
     // Send via UART
     // HAL_UART_Transmit(huart, tx_buf, sizeof(tx_buf), HAL_MAX_DELAY);
     msg.length = 44;
-    osMessageQueuePut(GetUartQueueHandle(), &msg, 0, 0);
+    osMessageQueuePut(Getimu_UartQueueHandle(), &msg, 0, 0);
 }
 void data_transmit(){
 
@@ -111,6 +120,36 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         HAL_UART_Receive_IT(&huart1, &rx_byte, 1);  
 
 
+    }else if (huart == &huart3)
+    {
+        uint8_t b = rx3_byte;
+
+        switch (rx_state)
+        {
+        case 0:  // 等待 header
+            if (b == 0xA6) rx_state = 1;
+            break;
+        case 1:  // 等待长度
+            if (b == 8) {
+                rx_len = 8;
+                rx_index = 0;
+                rx_state = 2;
+            } else {
+                rx_state = 0;
+            }
+            break;
+        case 2:  // 接收 payload
+            rx_payload[rx_index++] = b;
+            if (rx_index >= rx_len) {
+                memcpy(&cmd_linear_x,  &rx_payload[0], 4);
+                memcpy(&cmd_angular_z, &rx_payload[4], 4);
+
+                rx_state = 0;
+            }
+            break;
+        }
+
+        HAL_UART_Receive_IT(&huart3, &rx3_byte, 1);
     }
 
 }

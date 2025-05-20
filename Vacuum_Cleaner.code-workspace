@@ -19,7 +19,8 @@
             "*.cpp": "cpp",
             "*.cxx": "cpp",
             "*.cc": "cpp",
-            "typeinfo": "c"
+            "typeinfo": "c",
+            "xutility": "c"
         },
         "[yaml]": {
             "editor.insertSpaces": true,

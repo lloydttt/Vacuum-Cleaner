@@ -62,4 +62,4 @@ Velocity2D computeRobotVelocity(float v_left, float v_right, float wheel_base);
 void Get_state(void);
 void Motor_control(MAIN_MOTOR_TYPE *motor);
 
-
+void sendOdomToQueue(Velocity2D *odom);

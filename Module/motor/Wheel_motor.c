@@ -10,10 +10,10 @@
  ******************************************************************************/
 #include "Wheel_motor.h"
 #include "tim.h"
-
+#include "transit_task.h"
 Velocity2D _odom_data = {
-    .linear = 0,
-    .angular = 0
+    .linear = 1.1,
+    .angular = 2.0
 };
 
 volatile uint32_t count_left = 0;
@@ -63,7 +63,7 @@ void Get_state(void)
 {
     _odom_data = computeRobotVelocity(left_speed, right_speed, WHEEL_BASE);
 
-
+    sendOdomToQueue(&_odom_data);
 }
 
 void Motor_control(MAIN_MOTOR_TYPE *motor)
@@ -116,6 +116,26 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 
 
+void sendOdomToQueue(Velocity2D *odom) {
+    UARTMessage msg;
+    uint8_t *p = msg.data;
+
+    *p++ = 0xA5;
+    *p++ = 0x02;  // TYPE_ODOM
+    *p++ = 8;
+
+    memcpy(p, odom, 8);
+    p += 8;
+
+    uint8_t checksum = 0;
+    for (int i = 0; i < 8; i++) {
+        checksum += *((uint8_t *)odom + i);
+    }
+    *p = checksum;
+
+    msg.length = 12;
+    osMessageQueuePut(Getodom_UartQueueHandle(), &msg, 0, 0);
+}
 
 
 
