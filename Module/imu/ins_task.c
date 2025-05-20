@@ -4,6 +4,8 @@
 #include "usart.h"
 #include "string.h"
 #include "transit_task.h"
+#include "math.h"
+extern float d[9];
 //---------------------------
 #define START_BYTE 0xA5
 #define TYPE_IMU   0x01
@@ -29,7 +31,23 @@ uint8_t rx_byte;
 extern int ldoggy;
 extern int flag;
 //---------------------------
+void EulerToQuaternion(float roll, float pitch, float yaw, IMUData *imu) {
+    // 欧拉角的一半
+    float cr = cosf(roll  * 0.5f);
+    float sr = sinf(roll  * 0.5f);
+    float cp = cosf(pitch * 0.5f);
+    float sp = sinf(pitch * 0.5f);
+    float cy = cosf(yaw   * 0.5f);
+    float sy = sinf(yaw   * 0.5f);
 
+    // ZYX顺序（即航向->俯仰->滚转）
+    imu->qw = cr * cp * cy + sr * sp * sy;
+    imu->qx = sr * cp * cy - cr * sp * sy;
+    imu->qy = cr * sp * cy + sr * cp * sy;
+    imu->qz = cr * cp * sy - sr * sp * cy;
+
+
+}
 void sendIMUData(UART_HandleTypeDef *huart, IMUData *imu) {
     // uint8_t tx_buf[1 + 1 + 1 + IMU_DATA_LEN + 1];  // header + type + len + data + checksum
     // uint8_t *p = tx_buf;
@@ -57,25 +75,14 @@ void sendIMUData(UART_HandleTypeDef *huart, IMUData *imu) {
     osMessageQueuePut(GetUartQueueHandle(), &msg, 0, 0);
 }
 void data_transmit(){
-    _imu_data._stcTime = stcTime;
-    _imu_data._stcAcc = stcAcc;
-    _imu_data._stcGyro = stcGyro;
-    _imu_data._stcAngle = stcAngle;
-    _imu_data._stcMag = stcMag;
-    _imu_data._stcDStatus = stcDStatus;
-    _imu_data._stcPress = stcPress;
-    _imu_data._stcGPSV = stcGPSV;
-    _imu_data._stcLonLat = stcLonLat;
-    imu.qx = 0.1f;
-    imu.qy = 0.0f;
-    imu.qz = 0.0f;
-    imu.qw = 1.0f;
-    imu.gx = _imu_data._stcGyro.w[0];
-    imu.gy = _imu_data._stcGyro.w[1];
-    imu.gz = _imu_data._stcGyro.w[2];
-    imu.ax = _imu_data._stcAcc.a[0];
-    imu.ay = _imu_data._stcAcc.a[1];
-    imu.az = _imu_data._stcAcc.a[2];
+
+    EulerToQuaternion(d[6], d[7], d[8], &imu);
+    imu.gx = d[3];
+    imu.gy = d[4];
+    imu.gz = d[5];
+    imu.ax = d[0];
+    imu.ay = d[1];
+    imu.az = d[2];
 }
 
 void ins_init(void){

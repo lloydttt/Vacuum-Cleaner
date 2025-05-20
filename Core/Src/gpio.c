@@ -38,7 +38,6 @@
         * Output
         * EVENT_OUT
         * EXTI
-     PA0-WKUP   ------> S_TIM2_CH1_ETR
 */
 void MX_GPIO_Init(void)
 {
@@ -70,13 +69,11 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : MOTOR2_ENCODER_IN1_Pin */
-  GPIO_InitStruct.Pin = MOTOR2_ENCODER_IN1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
-  HAL_GPIO_Init(MOTOR2_ENCODER_IN1_GPIO_Port, &GPIO_InitStruct);
+  /*Configure GPIO pins : MOTOR2_ENCODER_IN1_Pin MOTOR1_ENCODER_IN1_Pin */
+  GPIO_InitStruct.Pin = MOTOR2_ENCODER_IN1_Pin|MOTOR1_ENCODER_IN1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : MOTOR2_ENCODER_VCC_Pin MOTOR4_OUTPUT_Pin MOTOR1_ENCODER_VCC_Pin */
   GPIO_InitStruct.Pin = MOTOR2_ENCODER_VCC_Pin|MOTOR4_OUTPUT_Pin|MOTOR1_ENCODER_VCC_Pin;
@@ -114,13 +111,10 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : MOTOR1_ENCODER_IN1_Pin */
-  GPIO_InitStruct.Pin = MOTOR1_ENCODER_IN1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  HAL_GPIO_Init(MOTOR1_ENCODER_IN1_GPIO_Port, &GPIO_InitStruct);
-
   /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 

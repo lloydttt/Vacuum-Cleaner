@@ -9,8 +9,9 @@
  * Copyright (c) 2025 Vacuum Cleaner Project. All rights reserved.
  ******************************************************************************/
 #pragma once
-#include "main.h"
 
+#include "main.h"
+#include <stdio.h>
 #define PI 3.14159265358979323846
 
 
@@ -24,6 +25,30 @@ typedef struct{
 }MAIN_MOTOR_TYPE;
 
 
+typedef struct {
+    float linear;   // m/s
+    float angular;  // rad/s
+} Velocity2D;
+
+
+static MAIN_MOTOR_TYPE left_main_motor = {
+    .instance = 0,
+    .pwm_num = 99,
+    .drc = 0,
+    .speed = 0,
+    .distance = 0
+};
+static MAIN_MOTOR_TYPE right_main_motor = {
+    .instance = 1,
+    .pwm_num = 1,
+    .drc = 1,
+    .speed = 0,
+    .distance = 0
+};
+
+
+
+
 // PWM 速度转换，状态读取，控制接口
 void motor_init(MAIN_MOTOR_TYPE *motor);
 
@@ -32,6 +57,8 @@ inline void PWM_genrate(uint16_t speed){
 
 
 }
+
+Velocity2D computeRobotVelocity(float v_left, float v_right, float wheel_base);
 void Get_state(void);
 void Motor_control(MAIN_MOTOR_TYPE *motor);
 

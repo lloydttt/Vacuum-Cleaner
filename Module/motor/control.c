@@ -1,6 +1,8 @@
 #include "control.h"
 #include "Wheel_motor.h"
+
 //motor controling algorithm
+uint8_t mode_select = 0;
 
 PID right_main_motor_pid = {
     .kp = 0.5,
@@ -62,17 +64,28 @@ void PID_calc(PID *pid, float target, float feedback) {
 
 
 //主要运动轮PID控制
+void control_init(void){
+    motor_init(&left_main_motor);
+    motor_init(&right_main_motor);
+
+}
+void state_control(MAIN_MOTOR_TYPE *motor)   //状态控制与数据传递
+{
+    
+}
 
 
+void open_loop_straight_line(void){
+    Get_state();
+}
 
+void open_loop_half_turn(void){
 
+}
 
+void open_loop_full_turn(void){
 
+}
 
-
-
-
-
-//mode 
 
 

@@ -1,6 +1,6 @@
 #include "robot_task.h"
 #include "ins_task.h"
-// #include "motor_task.h"
+#include "motor_task.h"
 #include "transit_task.h"
 
 osThreadId_t insTaskHandle;
@@ -18,9 +18,14 @@ void OSTaskInit()
         .priority = osPriorityNormal,
         .stack_size = 1024
     };
+    const osThreadAttr_t motorTaskAttr = {
+        .name = "motorTask",
+        .priority = osPriorityNormal,
+        .stack_size = 1024
+    };
 
     insTaskHandle = osThreadNew(StartINSTASK, NULL, &insTaskAttr);
-    // motorTaskHandle = osThreadNew(StartMOTORTASK, NULL, &motorTaskAttr);
+    motorTaskHandle = osThreadNew(StartMOTORTASK, NULL, &motorTaskAttr);
     transTaskHandle = osThreadNew(StartTRANSTASK, NULL, &transTaskAttr);
 
 }
@@ -48,5 +53,15 @@ __attribute__((noreturn)) void StartTRANSTASK(void *argument)
     }
 }
 
+__attribute__((noreturn)) void StartMOTORTASK(void *argument)
+{
+    motor_task_init();
+
+    for (;;)
+    {
+        motor_task();
+        osDelay(1);  // 1ms delay
+    }
+}
 
 

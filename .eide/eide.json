@@ -84,7 +84,7 @@
           "Module",
           "Module/transit",
           "Module/imu",
-          "Module/imu/wit_c_sdk"
+          "Module/motor"
         ],
         "libList": [],
         "defineList": [
