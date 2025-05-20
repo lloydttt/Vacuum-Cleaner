@@ -27,7 +27,7 @@ MAIN_MOTOR_TYPE right_main_motor = {
 };
 
 uint32_t count = 0;
-uint32_t last_tick = 0;
+static uint32_t last_tick = 0;
 float speed= 0;
 void motor_init(MAIN_MOTOR_TYPE *motor)
 {

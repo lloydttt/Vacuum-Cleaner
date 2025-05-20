@@ -3,6 +3,7 @@
 #include "gpio.h"
 #include "usart.h"
 #include "string.h"
+#include "transit_task.h"
 //---------------------------
 #define START_BYTE 0xA5
 #define TYPE_IMU   0x01
@@ -13,13 +14,7 @@ typedef struct {
     float gx, gy, gz;
     float ax, ay, az;
 } IMUData;
-//---------------------------
 
-struct imu_data _imu_data = {0};
-uint8_t rx_byte;
-extern int ldoggy;
-extern int flag;
-//---------------------------
 
 IMUData imu = {
     .qx = 0.1f, .qy = 0.0f, .qz = 0.0f, .qw = 1.0f,
@@ -29,10 +24,17 @@ IMUData imu = {
 //---------------------------
 
 
-void sendIMUData(UART_HandleTypeDef *huart, IMUData *imu) {
-    uint8_t tx_buf[1 + 1 + 1 + IMU_DATA_LEN + 1];  // header + type + len + data + checksum
-    uint8_t *p = tx_buf;
+struct imu_data _imu_data = {0};
+uint8_t rx_byte;
+extern int ldoggy;
+extern int flag;
+//---------------------------
 
+void sendIMUData(UART_HandleTypeDef *huart, IMUData *imu) {
+    // uint8_t tx_buf[1 + 1 + 1 + IMU_DATA_LEN + 1];  // header + type + len + data + checksum
+    // uint8_t *p = tx_buf;
+    UARTMessage msg;
+    uint8_t *p = msg.data;
     // Fill header
     *p++ = START_BYTE;
     *p++ = TYPE_IMU;
@@ -50,7 +52,9 @@ void sendIMUData(UART_HandleTypeDef *huart, IMUData *imu) {
     *p = checksum;
 
     // Send via UART
-    HAL_UART_Transmit(huart, tx_buf, sizeof(tx_buf), HAL_MAX_DELAY);
+    // HAL_UART_Transmit(huart, tx_buf, sizeof(tx_buf), HAL_MAX_DELAY);
+    msg.length = 44;
+    osMessageQueuePut(GetUartQueueHandle(), &msg, 0, 0);
 }
 void data_transmit(){
     _imu_data._stcTime = stcTime;
