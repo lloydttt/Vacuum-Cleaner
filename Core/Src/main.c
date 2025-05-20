@@ -108,7 +108,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
-  HAL_TIM_PWM_Start_IT(&htim4, TIM_CHANNEL_3);
+  // HAL_TIM_PWM_Start_IT(&htim4, TIM_CHANNEL_3);
 
   
   /* USER CODE END 2 */

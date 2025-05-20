@@ -34,7 +34,7 @@ typedef struct {
 static MAIN_MOTOR_TYPE left_main_motor = {
     .instance = 0,
     .pwm_num = 99,
-    .drc = 0,
+    .drc = 1,
     .speed = 0,
     .distance = 0
 };

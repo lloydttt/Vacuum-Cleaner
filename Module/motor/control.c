@@ -1,6 +1,8 @@
 #include "control.h"
 #include "Wheel_motor.h"
 #include "gpio.h"
+#include "tim.h"
+#include "usart.h"
 
 //motor controling algorithm
 uint8_t mode_select = 0;
@@ -77,12 +79,15 @@ void PID_calc(PID *pid, float target, float feedback) {
 void control_init(void){
     motor_init(&left_main_motor);
     motor_init(&right_main_motor);
-
+    HAL_UART_Receive_IT(&huart3, &rx3_byte, 1);
 }
 void state_control()   //状态控制与数据传递
 {
+    mode_check(cmd_linear_x, cmd_angular_z);
     if(mode_select == 0){
         //停止
+        HAL_GPIO_WritePin(GPIOC, MOTOR1_DRC_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(GPIOB, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
         __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 99);
         __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 1);
         
@@ -95,16 +100,25 @@ void state_control()   //状态控制与数据传递
     }else if(mode_select == 4){
         open_loop_point_turn_right();
     }
+
 }
 
 
 void open_loop_straight_line_forword(void){
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 50);
-    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 50);
+    // HAL_GPIO_WritePin(GPIOC, MOTOR1_DRC_Pin, GPIO_PIN_SET);
+    // HAL_GPIO_WritePin(GPIOB, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
+    // __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 50);
+    // __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 50);
+    HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 30);
+    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 80);
     Get_state();
 }
 void open_loop_straight_line_backword(void){
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 50);
+    HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_SET);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 80);
     __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 50);
     Get_state();
 }
@@ -118,14 +132,20 @@ void open_loop_full_turn(void){
 
 
 void open_loop_point_turn_left(void){
-
+    HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 70);
+    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 80);
 
 
 
 }
 
 void open_loop_point_turn_right(void){
-
+    HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_SET);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 30);
+    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 70);
 
 
 }

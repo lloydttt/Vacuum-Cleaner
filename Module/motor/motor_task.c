@@ -11,7 +11,7 @@ void motor_task_init(void){
 
 void motor_task(void){
 
-    open_loop_straight_line();
+    state_control();
 
 
 }
