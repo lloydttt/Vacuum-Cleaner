@@ -6,6 +6,7 @@
 
 //motor controling algorithm
 uint8_t mode_select = 0;
+uint8_t last_mode = 0;
 uint8_t rx3_byte;    // USART1 接收缓冲
 float cmd_linear_x = 0.0f;
 float cmd_angular_z = 0.0f;
@@ -85,21 +86,45 @@ void state_control()   //状态控制与数据传递
 {
     mode_check(cmd_linear_x, cmd_angular_z);
     if(mode_select == 0){
-        //停止
-        HAL_GPIO_WritePin(GPIOC, MOTOR1_DRC_Pin, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(GPIOB, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
-        __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 99);
-        __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 1);
+        if(last_mode == 0){
+            //停止
+            HAL_GPIO_WritePin(GPIOC, MOTOR1_DRC_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(GPIOB, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
+            __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 90);
+            __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 10);
+        }else if (last_mode == 1){
+            open_loop_straight_line_forword_STOP();
+        }else if (last_mode == 2){
+            open_loop_straight_line_backword_STOP();
+        }else if (last_mode == 3){
+            open_loop_point_turn_left_STOP();
+        }else if (last_mode == 4){
+            open_loop_point_turn_right_STOP();
+        }
         
     }else if(mode_select == 1){
         open_loop_straight_line_forword();
+        last_mode = 1;  
     }else if(mode_select == 2){
         open_loop_straight_line_backword();
+        last_mode = 2;  
     }else if(mode_select == 3){
         open_loop_point_turn_left();
+        last_mode = 3;  
     }else if(mode_select == 4){
         open_loop_point_turn_right();
+        last_mode = 4;  
     }
+
+    // open_loop_straight_line_forword();
+    // HAL_Delay(2500);
+    // open_loop_straight_line_forword_STOP();
+    // HAL_Delay(2500);
+    // open_loop_point_turn_left();
+    // HAL_Delay(2500);
+    // open_loop_point_turn_left_STOP();
+    // HAL_Delay(2500);
+
 
 }
 
@@ -115,12 +140,28 @@ void open_loop_straight_line_forword(void){
     __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 80);
     Get_state();
 }
+
+void open_loop_straight_line_forword_STOP(void){
+        HAL_GPIO_WritePin(GPIOC, MOTOR1_DRC_Pin, GPIO_PIN_RESET);  
+        HAL_GPIO_WritePin(GPIOB, MOTOR2_DRC_Pin, GPIO_PIN_SET);
+        __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 100);
+        __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 0);
+}
 void open_loop_straight_line_backword(void){
     HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_SET);
     __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 80);
     __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 50);
+    // HAL_TIM_PWM_Start_IT(&htim3, TIM_CHANNEL_2);
+    // HAL_TIM_PWM_Start_IT(&htim4, TIM_CHANNEL_3);
     Get_state();
+}
+void open_loop_straight_line_backword_STOP(void){
+        HAL_GPIO_WritePin(GPIOC, MOTOR1_DRC_Pin, GPIO_PIN_SET);  
+        HAL_GPIO_WritePin(GPIOB, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
+        __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 0);
+        __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 100);
+
 }
 void open_loop_half_turn(void){
 
@@ -140,6 +181,13 @@ void open_loop_point_turn_left(void){
 
 
 }
+void open_loop_point_turn_left_STOP(void){
+        HAL_GPIO_WritePin(GPIOC, MOTOR1_DRC_Pin, GPIO_PIN_SET);  
+        HAL_GPIO_WritePin(GPIOB, MOTOR2_DRC_Pin, GPIO_PIN_SET);
+        __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 0);
+        __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 0);
+
+}
 
 void open_loop_point_turn_right(void){
     HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_SET);
@@ -149,7 +197,15 @@ void open_loop_point_turn_right(void){
 
 
 }
+void open_loop_point_turn_right_STOP(void){
 
+        HAL_GPIO_WritePin(GPIOC, MOTOR1_DRC_Pin, GPIO_PIN_RESET);  
+        HAL_GPIO_WritePin(GPIOB, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
+        __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 100);
+        __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 100);
+
+
+}
 void mode_check(float _cmd_linear_x, float _cmd_angular_z){
     if(_cmd_linear_x == 0 && _cmd_angular_z == 0){
         mode_select = 0;
