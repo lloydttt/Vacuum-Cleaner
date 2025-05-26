@@ -12,12 +12,14 @@
 #include "tim.h"
 #include "transit_task.h"
 Velocity2D _odom_data = {
-    .linear = 1.1,
-    .angular = 2.0
+    .linear = 0.0f,
+    .angular = 0.0f
 };
-
+uint32_t now_i;
 volatile uint32_t count_left = 0;
 volatile uint32_t count_right = 0;
+volatile uint32_t last_count_left = 0;
+volatile uint32_t last_count_right = 0;
 static uint32_t right_last_tick = 0;
 static uint32_t left_last_tick = 0;
 float right_speed= 0;
@@ -58,9 +60,35 @@ Velocity2D computeRobotVelocity(float v_left, float v_right, float wheel_base) {
     v.angular = (v_right - v_left) / wheel_base;
     return v;
 }
+void CheckMotorTimeout(void)
+{
+
+
+
+    now_i = HAL_GetTick();
+
+    // Right motor timeout check
+    if (count_right == last_count_right) {
+        if (now_i - right_last_tick > 100) {  // 超过200ms无脉冲，认为停止
+            right_speed = 0.0f;
+            count_right = 0;
+            last_count_right = 0;
+        }
+    } 
+
+    // Left motor timeout check
+    if (count_left == last_count_left) {
+        if (now_i - left_last_tick > 100) {
+            left_speed = 0.0f;
+            count_left = 0;
+            last_count_left = 0;
+        }
+    } 
+}
 //左右轮获取速度
 void Get_state(void)
 {
+    // CheckMotorTimeout();
     _odom_data = computeRobotVelocity(left_speed, right_speed, WHEEL_BASE);
 
     sendOdomToQueue(&_odom_data);
@@ -84,6 +112,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
     if (GPIO_Pin == MOTOR1_ENCODER_IN1_Pin)
     {
+        count_right++;
         uint32_t now = HAL_GetTick(); 
         if (count_right == 615)      
         {
@@ -95,9 +124,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
             // Print or store the calculated speed
 
         }
-        count_right++;
+        last_count_right = count_right;
     }else if(GPIO_Pin == MOTOR2_ENCODER_IN1_Pin)
     {
+        count_left++;
         uint32_t now = HAL_GetTick(); 
         if (count_left == 615)      
         {
@@ -109,7 +139,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
             // Print or store the calculated speed
 
         }
-        count_left++;
+        last_count_left = count_left;
     }
 }
 

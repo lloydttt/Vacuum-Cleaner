@@ -59,6 +59,7 @@ inline void PWM_genrate(uint16_t speed){
 }
 
 Velocity2D computeRobotVelocity(float v_left, float v_right, float wheel_base);
+void CheckMotorTimeout(void);
 void Get_state(void);
 void Motor_control(MAIN_MOTOR_TYPE *motor);
 

@@ -5,7 +5,7 @@
 #include "usart.h"
 
 //motor controling algorithm
-uint8_t mode_select = 0;
+uint8_t mode_select = 2;
 uint8_t last_mode = 0;
 uint8_t rx3_byte;    // USART1 接收缓冲
 float cmd_linear_x = 0.0f;
@@ -92,6 +92,9 @@ void state_control()   //状态控制与数据传递
             HAL_GPIO_WritePin(GPIOB, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
             __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 90);
             __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 10);
+            CheckMotorTimeout();
+            Get_state();
+
         }else if (last_mode == 1){
             open_loop_straight_line_forword_STOP();
         }else if (last_mode == 2){
@@ -116,14 +119,6 @@ void state_control()   //状态控制与数据传递
         last_mode = 4;  
     }
 
-    // open_loop_straight_line_forword();
-    // HAL_Delay(2500);
-    // open_loop_straight_line_forword_STOP();
-    // HAL_Delay(2500);
-    // open_loop_point_turn_left();
-    // HAL_Delay(2500);
-    // open_loop_point_turn_left_STOP();
-    // HAL_Delay(2500);
 
 
 }
@@ -136,8 +131,8 @@ void open_loop_straight_line_forword(void){
     // __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 50);
     HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 30);
-    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 80);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 45);
+    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 75);
     Get_state();
 }
 
@@ -145,13 +140,15 @@ void open_loop_straight_line_forword_STOP(void){
         HAL_GPIO_WritePin(GPIOC, MOTOR1_DRC_Pin, GPIO_PIN_RESET);  
         HAL_GPIO_WritePin(GPIOB, MOTOR2_DRC_Pin, GPIO_PIN_SET);
         __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 100);
-        __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 0);
+        __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 0);CheckMotorTimeout();
+    Get_state();
+
 }
 void open_loop_straight_line_backword(void){
     HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_SET);
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 80);
-    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 50);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 70);
+    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 60);
     // HAL_TIM_PWM_Start_IT(&htim3, TIM_CHANNEL_2);
     // HAL_TIM_PWM_Start_IT(&htim4, TIM_CHANNEL_3);
     Get_state();
@@ -160,7 +157,9 @@ void open_loop_straight_line_backword_STOP(void){
         HAL_GPIO_WritePin(GPIOC, MOTOR1_DRC_Pin, GPIO_PIN_SET);  
         HAL_GPIO_WritePin(GPIOB, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
         __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 0);
-        __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 100);
+        __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 100);CheckMotorTimeout();
+    Get_state();
+
 
 }
 void open_loop_half_turn(void){
@@ -176,7 +175,8 @@ void open_loop_point_turn_left(void){
     HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
     __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 70);
-    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 80);
+    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 70);
+    Get_state();
 
 
 
@@ -186,14 +186,16 @@ void open_loop_point_turn_left_STOP(void){
         HAL_GPIO_WritePin(GPIOB, MOTOR2_DRC_Pin, GPIO_PIN_SET);
         __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 0);
         __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 0);
+    Get_state();
 
 }
 
 void open_loop_point_turn_right(void){
     HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_SET);
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 30);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 70);
     __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 70);
+    Get_state();
 
 
 }
@@ -203,6 +205,7 @@ void open_loop_point_turn_right_STOP(void){
         HAL_GPIO_WritePin(GPIOB, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
         __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 100);
         __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 100);
+    Get_state();
 
 
 }
