@@ -31,21 +31,6 @@ typedef struct {
 } Velocity2D;
 
 
-static MAIN_MOTOR_TYPE left_main_motor = {
-    .instance = 0,
-    .pwm_num = 99,
-    .drc = 1,
-    .speed = 0,
-    .distance = 0
-};
-static MAIN_MOTOR_TYPE right_main_motor = {
-    .instance = 1,
-    .pwm_num = 1,
-    .drc = 1,
-    .speed = 0,
-    .distance = 0
-};
-
 
 
 
@@ -53,14 +38,10 @@ static MAIN_MOTOR_TYPE right_main_motor = {
 void motor_init(MAIN_MOTOR_TYPE *motor);
 
 //一圈615     d = 64mm 
-inline void PWM_genrate(uint16_t speed){
-
-
-}
 
 Velocity2D computeRobotVelocity(float v_left, float v_right, float wheel_base);
 void CheckMotorTimeout(void);
 void Get_state(void);
-void Motor_control(MAIN_MOTOR_TYPE *motor);
+void Motor_control(MAIN_MOTOR_TYPE *motor, float speed, int drc);
 
 void sendOdomToQueue(Velocity2D *odom);

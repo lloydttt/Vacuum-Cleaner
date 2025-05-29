@@ -1,13 +1,12 @@
 #pragma once
 #include "main.h"
-#include "Wheel_motor.h"
 
 
 
 
 typedef struct {
     float kp, ki, kd;
-    float error, last_error;
+    float error, last_error, prev_error, past_error;
     float integral, MaxIntegral;
     float output, MaxOutput;
 } PID;
@@ -30,3 +29,4 @@ void open_loop_point_turn_left_STOP(void);
 void open_loop_point_turn_right(void);
 void open_loop_point_turn_right_STOP(void);
 void mode_check(float _cmd_linear_x, float _cmd_angular_z);
+void motor_ttt(void);

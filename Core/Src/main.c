@@ -107,6 +107,8 @@ int main(void)
   MX_TIM9_Init();
   MX_USART1_UART_Init();
   MX_USART3_UART_Init();
+  MX_TIM1_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   // HAL_TIM_PWM_Start_IT(&htim4, TIM_CHANNEL_3);
 
@@ -193,19 +195,19 @@ void SystemClock_Config(void)
   * @param  htim : TIM handle
   * @retval None
   */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  /* USER CODE BEGIN Callback 0 */
+// void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+// {
+//   /* USER CODE BEGIN Callback 0 */
 
-  /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM5)
-  {
-    HAL_IncTick();
-  }
-  /* USER CODE BEGIN Callback 1 */
+//   /* USER CODE END Callback 0 */
+//   if (htim->Instance == TIM5)
+//   {
+//     HAL_IncTick();
+//   }
+//   /* USER CODE BEGIN Callback 1 */
 
-  /* USER CODE END Callback 1 */
-}
+//   /* USER CODE END Callback 1 */
+// }
 
 /**
   * @brief  This function is executed in case of error occurrence.
