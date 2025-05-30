@@ -20,7 +20,7 @@ uint8_t rx_index = 0;
 uint8_t rx_payload[8];
 
 PID right_main_motor_pid = {
-    .kp = 600,
+    .kp = -150,  //144
     .ki = 0.0,
     .kd = 0.0,
     .MaxIntegral = 100,
@@ -28,9 +28,9 @@ PID right_main_motor_pid = {
 };
 
 PID left_main_motor_pid = {
-    .kp = 0.5,
-    .ki = 0.0,
-    .kd = 0.0,
+    .kp = -35,
+    .ki = 0.01,
+    .kd = 0.01,
     .MaxIntegral = 100,
     .MaxOutput = 100
 };
@@ -53,29 +53,29 @@ void PID_Init(PID *pid, float P, float I, float D, float maxO, float maxI) {
     pid->output = 0;
 }
 
-void PID_calc(PID *pid, float target, float feedback){
-    pid->past_error = pid->last_error;
-    pid->last_error = pid->error;
-    pid->error = (target - feedback);
+// void PID_calc(PID *pid, float target, float feedback){
+//     pid->past_error = pid->last_error;
+//     pid->last_error = pid->error;
+//     pid->error = (target - feedback);
 
-    float pout = pid->error * pid->kp;
-    float dout = (pid->error - 2*pid->last_error + pid->past_error) * pid->kd;
+//     float pout = pid->error * pid->kp;
+//     float dout = (pid->error - 2*pid->last_error + pid->past_error) * pid->kd;
 
-    pid->integral += pid->error;
-    if(pid->integral > pid->MaxIntegral)
-        pid->integral = pid->MaxIntegral;
-    else if (pid->integral < -pid->MaxIntegral)
-        pid->integral = -pid->MaxIntegral;
+//     pid->integral += pid->error;
+//     if(pid->integral > pid->MaxIntegral)
+//         pid->integral = pid->MaxIntegral;
+//     else if (pid->integral < -pid->MaxIntegral)
+//         pid->integral = -pid->MaxIntegral;
 
-    float iout = pid->integral * pid->ki;
+//     float iout = pid->integral * pid->ki;
 
-    pid->output = pout + iout + dout;
+//     pid->output = pout + iout + dout;
 
-    if (pid->output > pid->MaxOutput)
-        pid->output = pid->MaxOutput;
-    else if(pid->output < -pid->MaxOutput)
-        pid->output = -pid->MaxOutput;
-}
+//     if (pid->output > pid->MaxOutput)
+//         pid->output = pid->MaxOutput;
+//     else if(pid->output < 0)
+//         pid->output = -pid->output;
+// }
 void PID_Incremental_Calc(PID *pid, float target, float feedback) {
     pid->prev_error = pid->last_error;
     pid->last_error = pid->error;
@@ -90,8 +90,8 @@ void PID_Incremental_Calc(PID *pid, float target, float feedback) {
     // 限幅处理
     if (pid->output > pid->MaxOutput)
         pid->output = pid->MaxOutput;
-    else if (pid->output < -pid->MaxOutput)
-        pid->output = -pid->MaxOutput;
+    else if (pid->output < 0)
+        pid->output = -pid->output;
 }
 
 
@@ -112,7 +112,7 @@ void state_control()   //状态控制与数据传递
     //         HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_RESET);
     //         __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 90);
     //         __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 10);
-    //         CheckMotorTimeout();
+    //         //CheckMotorTimeout();
     //         Get_state();
 
     //     }else if (last_mode == 1){
@@ -140,15 +140,17 @@ void state_control()   //状态控制与数据传递
     // }
 
     open_loop_straight_line_forword();
-    // motor_ttt();
+    // motor_ttt();R
 }
 
 
 void open_loop_straight_line_forword(void){
-    HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 45);
-    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 75);
+    // HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_SET);
+    // HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
+    // __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 45);
+    // __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 75);
+    Motor_control(&left_main_motor, 50+10, 0);
+    Motor_control(&right_main_motor, 25, 0);
     Get_state();
 }
 
@@ -157,7 +159,7 @@ void open_loop_straight_line_forword_STOP(void){
     HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_SET);
     __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 100);
     __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 0);
-    CheckMotorTimeout();
+    // //CheckMotorTimeout();
     Get_state();
 
 }
@@ -173,7 +175,7 @@ void open_loop_straight_line_backword_STOP(void){
     HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_RESET);
     __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 0);
     __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 100);
-    CheckMotorTimeout();
+    //CheckMotorTimeout();
     Get_state();
 
 
@@ -202,7 +204,7 @@ void open_loop_point_turn_left_STOP(void){
     HAL_GPIO_WritePin(GPIOB, MOTOR2_DRC_Pin, GPIO_PIN_SET);
     __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 0);
     __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 0);
-    CheckMotorTimeout();
+    //CheckMotorTimeout();
     Get_state();
 
 }
@@ -222,7 +224,7 @@ void open_loop_point_turn_right_STOP(void){
     HAL_GPIO_WritePin(GPIOB, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
     __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 100);
     __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 100);
-    CheckMotorTimeout();
+    //CheckMotorTimeout();
     Get_state();
 
 
@@ -258,9 +260,12 @@ void motor_ttt(void){
     // HAL_Delay(1500);
     // Motor_control(&left_main_motor, 100, 0);
     // HAL_Delay(1500);
-    PID_Incremental_Calc(&right_main_motor_pid, 0.10, right_main_motor.speed);
-    Motor_control(&right_main_motor, right_main_motor_pid.output, right_main_motor.drc);
-    // CheckMotorTimeout();
+    // PID_Incremental_Calc(&right_main_motor_pid, 0.12, right_main_motor.speed);
+    // Motor_control(&right_main_motor, right_main_motor_pid.output, right_main_motor.drc);
+    PID_Incremental_Calc(&left_main_motor_pid, 0.12, left_main_motor.speed);
+    float ff_output = 60;
+    Motor_control(&left_main_motor, ff_output+left_main_motor_pid.output, 0);
+    // //CheckMotorTimeout();
 
     // Motor_control(&right_main_motor, right_main_motor_pid.output, right_main_motor.drc);
 
