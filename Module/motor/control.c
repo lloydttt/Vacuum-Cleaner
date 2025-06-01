@@ -5,7 +5,7 @@
 #include "usart.h"
 
 //motor controling algorithm
-uint8_t mode_select = 2;
+uint8_t mode_select = 0;
 uint8_t last_mode = 0;
 uint8_t rx3_byte;    // USART1 接收缓冲
 float cmd_linear_x = 0.3f;
@@ -20,7 +20,7 @@ uint8_t rx_index = 0;
 uint8_t rx_payload[8];
 
 PID right_main_motor_pid = {
-    .kp = -150,  //144
+    .kp = -165,  //144
     .ki = 0.0,
     .kd = 0.0,
     .MaxIntegral = 100,
@@ -28,7 +28,7 @@ PID right_main_motor_pid = {
 };
 
 PID left_main_motor_pid = {
-    .kp = -35,
+    .kp = -30,
     .ki = 0.01,
     .kd = 0.01,
     .MaxIntegral = 100,
@@ -53,29 +53,6 @@ void PID_Init(PID *pid, float P, float I, float D, float maxO, float maxI) {
     pid->output = 0;
 }
 
-// void PID_calc(PID *pid, float target, float feedback){
-//     pid->past_error = pid->last_error;
-//     pid->last_error = pid->error;
-//     pid->error = (target - feedback);
-
-//     float pout = pid->error * pid->kp;
-//     float dout = (pid->error - 2*pid->last_error + pid->past_error) * pid->kd;
-
-//     pid->integral += pid->error;
-//     if(pid->integral > pid->MaxIntegral)
-//         pid->integral = pid->MaxIntegral;
-//     else if (pid->integral < -pid->MaxIntegral)
-//         pid->integral = -pid->MaxIntegral;
-
-//     float iout = pid->integral * pid->ki;
-
-//     pid->output = pout + iout + dout;
-
-//     if (pid->output > pid->MaxOutput)
-//         pid->output = pid->MaxOutput;
-//     else if(pid->output < 0)
-//         pid->output = -pid->output;
-// }
 void PID_Incremental_Calc(PID *pid, float target, float feedback) {
     pid->prev_error = pid->last_error;
     pid->last_error = pid->error;
@@ -98,84 +75,77 @@ void PID_Incremental_Calc(PID *pid, float target, float feedback) {
 
 //主要运动轮PID控制
 void control_init(void){
+    initVelocityFilters();
     motor_init(&left_main_motor);
     motor_init(&right_main_motor);
     HAL_UART_Receive_IT(&huart3, &rx3_byte, 1);
 }
 void state_control()   //状态控制与数据传递
 {
-    // mode_check(cmd_linear_x, cmd_angular_z);
-    // if(mode_select == 0){
-    //     if(last_mode == 0){
-    //         //停止
-    //         HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_SET);
-    //         HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_RESET);
-    //         __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 90);
-    //         __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 10);
-    //         //CheckMotorTimeout();
-    //         Get_state();
+    mode_check(cmd_linear_x, cmd_angular_z);
+    if(mode_select == 0){
+        if(last_mode == 0){
+            //停止
+            Motor_control(&left_main_motor, 0, 0);
+            Motor_control(&right_main_motor, 0, 0);
+            Get_state();
 
-    //     }else if (last_mode == 1){
-    //         open_loop_straight_line_forword_STOP();
-    //     }else if (last_mode == 2){
-    //         open_loop_straight_line_backword_STOP();
-    //     }else if (last_mode == 3){
-    //         open_loop_point_turn_left_STOP();
-    //     }else if (last_mode == 4){
-    //         open_loop_point_turn_right_STOP();
-    //     }
+        }else if (last_mode == 1){
+            open_loop_straight_line_forword_STOP();
+        }else if (last_mode == 2){
+            open_loop_straight_line_backword_STOP();
+        }else if (last_mode == 3){
+            open_loop_point_turn_left_STOP();
+        }else if (last_mode == 4){
+            open_loop_point_turn_right_STOP();
+        }
         
-    // }else if(mode_select == 1){
-    //     open_loop_straight_line_forword();
-    //     last_mode = 1;  
-    // }else if(mode_select == 2){
-    //     open_loop_straight_line_backword();
-    //     last_mode = 2;  
-    // }else if(mode_select == 3){
-    //     open_loop_point_turn_left();
-    //     last_mode = 3;  
-    // }else if(mode_select == 4){
-    //     open_loop_point_turn_right();
-    //     last_mode = 4;  
-    // }
+    }else if(mode_select == 1){
+        open_loop_straight_line_forword();
+        last_mode = 1;  
+    }else if(mode_select == 2){
+        open_loop_straight_line_backword();
+        last_mode = 2;  
+    }else if(mode_select == 4){
+        open_loop_point_turn_left();
+        last_mode = 4;  
+    }else if(mode_select == 3){
+        open_loop_point_turn_right();
+        last_mode = 3;  
+    }
 
-    open_loop_straight_line_forword();
-    // motor_ttt();R
+    // open_loop_straight_line_forword();
+    // open_loop_straight_line_backword();
+    // open_loop_point_turn_left();
+    // open_loop_point_turn_right();
+    // motor_ttt();
 }
 
 
 void open_loop_straight_line_forword(void){
-    // HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_SET);
-    // HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
-    // __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 45);
-    // __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 75);
-    Motor_control(&left_main_motor, 50+10, 0);
-    Motor_control(&right_main_motor, 25, 0);
+    left_main_motor.drc = 0;  // forward
+    right_main_motor.drc = 0; // forward
+    Motor_control(&left_main_motor, 50+20, left_main_motor.drc);
+    Motor_control(&right_main_motor, 45, right_main_motor.drc);
     Get_state();
 }
 
 void open_loop_straight_line_forword_STOP(void){
-    HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_RESET);  
-    HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_SET);
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 100);
-    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 0);
-    // //CheckMotorTimeout();
+    Motor_control(&left_main_motor, 0, 0);
+    Motor_control(&right_main_motor, 0, 0);
     Get_state();
 
 }
 void open_loop_straight_line_backword(void){
-    HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_SET);
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 70);
-    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 60);
+    left_main_motor.drc = 1;  // backward
+    right_main_motor.drc = 1; // backward
+    Motor_control(&left_main_motor, 38, left_main_motor.drc);
+    Motor_control(&right_main_motor, 50+20.2, right_main_motor.drc);
     Get_state();
-}
+}    //   0.5米误差不超过5mm
 void open_loop_straight_line_backword_STOP(void){
-    HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_SET);  
-    HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_RESET);
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 0);
-    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 100);
-    //CheckMotorTimeout();
+    Motor_control(&left_main_motor, 0, 1);
+    Motor_control(&right_main_motor, 0, 1);
     Get_state();
 
 
@@ -190,41 +160,34 @@ void open_loop_full_turn(void){
 
 
 void open_loop_point_turn_left(void){
-    HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 70);
-    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 70);
+    left_main_motor.drc = 1;  
+    right_main_motor.drc = 0;
+    Motor_control(&left_main_motor, 25, left_main_motor.drc);
+    Motor_control(&right_main_motor, 25, right_main_motor.drc);
     Get_state();
 
 
 
 }
 void open_loop_point_turn_left_STOP(void){
-    HAL_GPIO_WritePin(GPIOC, MOTOR1_DRC_Pin, GPIO_PIN_SET);  
-    HAL_GPIO_WritePin(GPIOB, MOTOR2_DRC_Pin, GPIO_PIN_SET);
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 0);
-    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 0);
-    //CheckMotorTimeout();
+    Motor_control(&left_main_motor, 0, 1);
+    Motor_control(&right_main_motor, 0, 0);
     Get_state();
 
 }
 
 void open_loop_point_turn_right(void){
-    HAL_GPIO_WritePin(GPIOB, MOTOR1_DRC_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(GPIOC, MOTOR2_DRC_Pin, GPIO_PIN_SET);
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 70);
-    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 70);
+    left_main_motor.drc = 0;  
+    right_main_motor.drc = 1;
+    Motor_control(&left_main_motor, 50+15, left_main_motor.drc);
+    Motor_control(&right_main_motor, 50+15, right_main_motor.drc);
     Get_state();
 
 
 }
 void open_loop_point_turn_right_STOP(void){
-
-    HAL_GPIO_WritePin(GPIOC, MOTOR1_DRC_Pin, GPIO_PIN_RESET);  
-    HAL_GPIO_WritePin(GPIOB, MOTOR2_DRC_Pin, GPIO_PIN_RESET);
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 100);
-    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 100);
-    //CheckMotorTimeout();
+    Motor_control(&left_main_motor, 0, 0);
+    Motor_control(&right_main_motor, 0, 1);
     Get_state();
 
 
@@ -246,27 +209,11 @@ void mode_check(float _cmd_linear_x, float _cmd_angular_z){
 
 
 void motor_ttt(void){
-    // ttt = right_main_motor.speed;
-    // PID_calc(&right_main_motor_pid, cmd_linear_x, right_main_motor.speed);
-    // Motor_control(&left_main_motor, 0, 1);
-    // HAL_Delay(1500);
-    // Motor_control(&left_main_motor, 50, 1);
-    // HAL_Delay(1500);
-    // Motor_control(&left_main_motor, 100, 1);
-    // HAL_Delay(1500);
-    // Motor_control(&left_main_motor, 0, 0);
-    // HAL_Delay(1500);
-    // Motor_control(&left_main_motor, 50, 0);  
-    // HAL_Delay(1500);
-    // Motor_control(&left_main_motor, 100, 0);
-    // HAL_Delay(1500);
-    // PID_Incremental_Calc(&right_main_motor_pid, 0.12, right_main_motor.speed);
-    // Motor_control(&right_main_motor, right_main_motor_pid.output, right_main_motor.drc);
+
+    PID_Incremental_Calc(&right_main_motor_pid, 0.12, right_main_motor.speed);
+    Motor_control(&right_main_motor, right_main_motor_pid.output, right_main_motor.drc);
     PID_Incremental_Calc(&left_main_motor_pid, 0.12, left_main_motor.speed);
     float ff_output = 60;
     Motor_control(&left_main_motor, ff_output+left_main_motor_pid.output, 0);
-    // //CheckMotorTimeout();
-
-    // Motor_control(&right_main_motor, right_main_motor_pid.output, right_main_motor.drc);
 
 }

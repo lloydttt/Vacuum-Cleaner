@@ -84,7 +84,8 @@
           "Module",
           "Module/transit",
           "Module/imu",
-          "Module/motor"
+          "Module/motor",
+          "Module/filter"
         ],
         "libList": [],
         "defineList": [

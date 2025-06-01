@@ -14,6 +14,8 @@ struct imu_data
     struct SLonLat 		_stcLonLat;
     struct SGPSV 		_stcGPSV; 
 };
+
+float DegToRad(float degrees);
 // todo change recieve mode to blocking mode, aims to control the frequency of IMU updating 
 void data_transmit(void);
 

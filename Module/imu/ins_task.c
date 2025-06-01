@@ -6,6 +6,8 @@
 #include "transit_task.h"
 #include "math.h"
 #include "control.h"
+#include "kalman.h"
+
 extern float d[9];
 extern uint8_t rx3_byte;    // USART1 接收缓冲
 extern float cmd_linear_x;
@@ -15,10 +17,16 @@ extern uint8_t rx_state;
 extern uint8_t rx_len;
 extern uint8_t rx_index;
 extern uint8_t rx_payload[8];
+KalmanFilter imu_filters[9];  // 对应 d[0]~d[8] 的 9 个滤波器
+float filtered_d[9];          // 存储滤波后的值
+
 //---------------------------
 #define START_BYTE 0xA5
 #define TYPE_IMU   0x01
 #define IMU_DATA_LEN 40  // 10 floats * 4 bytes
+#ifndef M_PI
+#define M_PI 3.14159265358979323846f
+#endif
 
 typedef struct {
     float qx, qy, qz, qw;
@@ -40,6 +48,14 @@ uint8_t rx_byte;
 extern int ldoggy;
 extern int flag;
 //---------------------------
+float DegToRad(float degrees) {
+    return degrees * (M_PI / 180.0f);
+}
+void IMU_Kalman_Init(void) {
+    for (int i = 0; i < 9; i++) {
+        Kalman_Init(&imu_filters[i], 0.03f, 0.5f, d[i]);  // 你可以根据实际噪声调整 Q、R
+    }
+}
 void EulerToQuaternion(float roll, float pitch, float yaw, IMUData *imu) {
     // 欧拉角的一半
     float cr = cosf(roll  * 0.5f);
@@ -84,11 +100,14 @@ void sendIMUData(UART_HandleTypeDef *huart, IMUData *imu) {
     osMessageQueuePut(Getimu_UartQueueHandle(), &msg, 0, 0);
 }
 void data_transmit(){
-
-    EulerToQuaternion(d[6], d[7], d[8], &imu);
-    imu.gx = d[3];
-    imu.gy = d[4];
-    imu.gz = d[5];
+    // 对 d[0] ~ d[8] 进行 Kalman 滤波
+    for (int i = 0; i < 9; i++) {
+        filtered_d[i] = Kalman_Update(&imu_filters[i], d[i]);
+    }
+    EulerToQuaternion(DegToRad(d[6]), DegToRad(d[7]), DegToRad(d[8]), &imu);
+    imu.gx = DegToRad(d[3]);
+    imu.gy = DegToRad(d[4]);
+    imu.gz = DegToRad(d[5]);
     imu.ax = d[0];
     imu.ay = d[1];
     imu.az = d[2];
@@ -96,6 +115,7 @@ void data_transmit(){
 
 void ins_init(void){
     clear_imu_data();
+    IMU_Kalman_Init(); 
     HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_SET);
     HAL_UART_Receive_IT(&huart1, &rx_byte, 1);
 }

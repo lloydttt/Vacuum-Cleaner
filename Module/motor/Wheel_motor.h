@@ -33,14 +33,13 @@ typedef struct {
 
 
 
-
+void initVelocityFilters(void);
 // PWM 速度转换，状态读取，控制接口
 void motor_init(MAIN_MOTOR_TYPE *motor);
 
 //一圈615     d = 64mm 
 
 Velocity2D computeRobotVelocity(float v_left, float v_right, float wheel_base);
-void CheckMotorTimeout(void);
 void Get_state(void);
 void Motor_control(MAIN_MOTOR_TYPE *motor, float speed, int drc);
 
