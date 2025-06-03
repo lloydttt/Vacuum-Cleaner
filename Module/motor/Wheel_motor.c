@@ -47,10 +47,24 @@ float right_speed= 0;
 float left_speed= 0;
 float WHEEL_BASE = 0.183f; // Wheel base in meters
 extern float filtered_d[9];
+
+/**
+ * @brief 初始化左右轮速度的卡尔曼滤波器
+ * 
+ * @note 初始化左右轮的卡尔曼滤波器参数，包括Q值、R值和初始值。
+ */
 void initVelocityFilters(void) {
     Kalman_Init(&kf_left, 0.02f, 0.25f, 0.0f);  // Q, R, 初值
     Kalman_Init(&kf_right, 0.02f, 0.25f, 0.0f);
 }
+
+/**
+ * @brief 初始化电机模块
+ * 
+ * @param motor 指向主电机结构体的指针
+ * 
+ * @note 根据电机实例和方向设置GPIO引脚状态，启动PWM和定时器中断。
+ */
 void motor_init(MAIN_MOTOR_TYPE *motor)
 {
     if(motor->instance == 0){   //L
@@ -88,6 +102,16 @@ void motor_init(MAIN_MOTOR_TYPE *motor)
     
 }
 
+/**
+ * @brief 计算机器人速度
+ * 
+ * @param v_left 左轮速度
+ * @param v_right 右轮速度
+ * @param wheel_base 轮距
+ * @return Velocity2D 机器人线速度和角速度
+ * 
+ * @note 使用卡尔曼滤波器对左右轮速度进行滤波，并计算机器人线速度和角速度。
+ */
 Velocity2D computeRobotVelocity(float v_left, float v_right, float wheel_base) {
     Velocity2D v;
     v_left_filtered = Kalman_Update(&kf_left, v_left);
@@ -105,7 +129,12 @@ Velocity2D computeRobotVelocity(float v_left, float v_right, float wheel_base) {
     v.angular = DegToRad(filtered_d[5]);
     return v;
 }
-//左右轮获取速度
+
+/**
+ * @brief 获取机器人状态
+ * 
+ * @note 计算左右轮速度并发送里程计数据到队列。
+ */
 void Get_state(void)
 {
     // CheckMotorTimeout();
@@ -114,6 +143,15 @@ void Get_state(void)
     sendOdomToQueue(&_odom_data);
 }
 
+/**
+ * @brief 控制电机速度和方向
+ * 
+ * @param motor 指向主电机结构体的指针
+ * @param speed 电机速度
+ * @param drc 电机方向（0: 正向，1: 反向）
+ * 
+ * @note 根据方向设置GPIO引脚状态，并通过PWM调整电机速度。
+ */
 void Motor_control(MAIN_MOTOR_TYPE *motor,  float speed, int drc)
 {
     if(motor->instance == 0){
@@ -145,6 +183,13 @@ void Motor_control(MAIN_MOTOR_TYPE *motor,  float speed, int drc)
 
 }
 
+/**
+ * @brief 定时器中断回调函数
+ * 
+ * @param htim 指向定时器句柄的指针
+ * 
+ * @note 根据不同的定时器实例，计算左右轮速度并更新电机结构体中的速度值。
+ */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
@@ -184,6 +229,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
   /* USER CODE END Callback 1 */
 }
+
+/**
+ * @brief GPIO外部中断回调函数
+ * 
+ * @param GPIO_Pin 触发中断的GPIO引脚
+ * 
+ * @note 根据触发的引脚更新左右轮编码器计数值。
+ */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
     if (GPIO_Pin == MOTOR1_ENCODER_IN1_Pin)
@@ -196,8 +249,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 }
 
 
-
-
+/**
+ * @brief 发送里程计数据到队列
+ * 
+ * @param odom 指向里程计速度结构体的指针
+ * 
+ * @note 将里程计数据打包成UART消息并发送到消息队列。
+ */
 void sendOdomToQueue(Velocity2D *odom) {
     UARTMessage msg;
     uint8_t *p = msg.data;
