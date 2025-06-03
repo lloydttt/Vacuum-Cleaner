@@ -49,7 +49,7 @@ __attribute__((noreturn)) void StartTRANSTASK(void *argument)
     for (;;)
     {
         SerialTxTask();
-        osDelay(10);  // 1ms delay
+        osDelay(10);  // 10ms delay
     }
 }
 

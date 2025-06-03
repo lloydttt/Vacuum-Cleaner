@@ -50,9 +50,6 @@
 
 /* USER CODE BEGIN PV */
 
-
-int ldoggy = 0;
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

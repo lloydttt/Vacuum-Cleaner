@@ -9,7 +9,7 @@
 #include "kalman.h"
 
 extern float d[9];
-extern uint8_t rx3_byte;    // USART1 接收缓冲
+extern uint8_t rx3_byte;    // USART3 接收缓冲
 extern float cmd_linear_x;
 extern float cmd_angular_z;
 
@@ -36,16 +36,15 @@ typedef struct {
 
 
 IMUData imu = {
-    .qx = 0.1f, .qy = 0.0f, .qz = 0.0f, .qw = 1.0f,
-    .gx = 0.01f, .gy = -0.02f, .gz = 0.005f,
-    .ax = 0.0f, .ay = 9.81f, .az = 0.0f
+    .qx = 0.0f, .qy = 0.0f, .qz = 0.0f, .qw = 0.0f,
+    .gx = 0.0f, .gy = 0.0f, .gz = 0.0f,
+    .ax = 0.0f, .ay = 0.0f, .az = 0.0f
 };
 //---------------------------
 
 
 struct imu_data _imu_data = {0};
 uint8_t rx_byte;
-extern int ldoggy;
 extern int flag;
 //---------------------------
 float DegToRad(float degrees) {
@@ -74,8 +73,6 @@ void EulerToQuaternion(float roll, float pitch, float yaw, IMUData *imu) {
 
 }
 void sendIMUData(UART_HandleTypeDef *huart, IMUData *imu) {
-    // uint8_t tx_buf[1 + 1 + 1 + IMU_DATA_LEN + 1];  // header + type + len + data + checksum
-    // uint8_t *p = tx_buf;
     UARTMessage msg;
     uint8_t *p = msg.data;
     // Fill header
@@ -93,12 +90,10 @@ void sendIMUData(UART_HandleTypeDef *huart, IMUData *imu) {
         checksum += *((uint8_t*)imu + i);
     }
     *p = checksum;
-
-    // Send via UART
-    // HAL_UART_Transmit(huart, tx_buf, sizeof(tx_buf), HAL_MAX_DELAY);
     msg.length = 44;
     osMessageQueuePut(Getimu_UartQueueHandle(), &msg, 0, 0);
 }
+
 void data_transmit(){
     // 对 d[0] ~ d[8] 进行 Kalman 滤波
     for (int i = 0; i < 9; i++) {
@@ -133,7 +128,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     if (huart == &huart1)
     {
 
-        // WitSerialDataIn(rx_byte);
         HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_SET);
         CopeSerialData(rx_byte);
         // 继续接收下一个字节

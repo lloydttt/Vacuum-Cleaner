@@ -20,7 +20,7 @@ uint8_t rx_index = 0;
 uint8_t rx_payload[8];
 
 PID right_main_motor_pid = {
-    .kp = -165,  //144
+    .kp = 165,  //144
     .ki = 0.0,
     .kd = 0.0,
     .MaxIntegral = 100,
@@ -28,7 +28,7 @@ PID right_main_motor_pid = {
 };
 
 PID left_main_motor_pid = {
-    .kp = -30,
+    .kp = 30,
     .ki = 0.01,
     .kd = 0.01,
     .MaxIntegral = 100,
@@ -58,7 +58,7 @@ void PID_Incremental_Calc(PID *pid, float target, float feedback) {
     pid->last_error = pid->error;
     pid->error = target - feedback;
 
-    float delta_output = pid->kp * (pid->error - pid->last_error)
+    float delta_output = pid->kp * (pid->last_error - pid->error)
                        + pid->ki * pid->error
                        + pid->kd * (pid->error - 2.0f * pid->last_error + pid->prev_error);
 
@@ -125,8 +125,8 @@ void state_control()   //状态控制与数据传递
 void open_loop_straight_line_forword(void){
     left_main_motor.drc = 0;  // forward
     right_main_motor.drc = 0; // forward
-    Motor_control(&left_main_motor, 50+20, left_main_motor.drc);
-    Motor_control(&right_main_motor, 45, right_main_motor.drc);
+    Motor_control(&left_main_motor, 50+28, left_main_motor.drc);
+    Motor_control(&right_main_motor, 60, right_main_motor.drc);
     Get_state();
 }
 
@@ -139,8 +139,8 @@ void open_loop_straight_line_forword_STOP(void){
 void open_loop_straight_line_backword(void){
     left_main_motor.drc = 1;  // backward
     right_main_motor.drc = 1; // backward
-    Motor_control(&left_main_motor, 38, left_main_motor.drc);
-    Motor_control(&right_main_motor, 50+20.2, right_main_motor.drc);
+    Motor_control(&left_main_motor, 55, left_main_motor.drc);
+    Motor_control(&right_main_motor, 50+30, right_main_motor.drc);
     Get_state();
 }    //   0.5米误差不超过5mm
 void open_loop_straight_line_backword_STOP(void){
@@ -208,7 +208,7 @@ void mode_check(float _cmd_linear_x, float _cmd_angular_z){
 }
 
 
-void motor_ttt(void){
+void motor_closeLoop_control(void){
 
     PID_Incremental_Calc(&right_main_motor_pid, 0.12, right_main_motor.speed);
     Motor_control(&right_main_motor, right_main_motor_pid.output, right_main_motor.drc);
