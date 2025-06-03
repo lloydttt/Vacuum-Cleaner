@@ -12,6 +12,13 @@ osMessageQueueId_t Getodom_UartQueueHandle(void) {
 }
 
 
+/**
+ * @brief 串口发送任务
+ * @details 该任务从两个消息队列 imuQueue 和 odomQueue 中获取消息，并通过串口发送。
+ *          如果两个队列中均有消息，则依次发送 IMU 和里程计数据；
+ *          如果仅有 IMU 数据，则只发送 IMU 数据。
+ * @note 使用了 FreeRTOS 消息队列和 HAL 库的串口发送函数。
+ */
 void SerialTxTask(void) {
     UARTMessage imu_msg;
     UARTMessage odom_msg;
@@ -29,6 +36,11 @@ void SerialTxTask(void) {
     }
 }
 
+
+/**
+ * @brief 串口发送任务初始化
+ * @details 初始化两个消息队列 imuQueue 和 odomQueue，每个队列的容量为 20，消息大小为 UARTMessage 结构体的大小。
+ */
 void SerialTxTaskInit(void) {
     imuQueue  = osMessageQueueNew(20, sizeof(UARTMessage), NULL);
     odomQueue = osMessageQueueNew(20, sizeof(UARTMessage), NULL);

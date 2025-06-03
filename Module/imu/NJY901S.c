@@ -33,6 +33,22 @@ void CharToLong(char Dest[],char Source[])
 	 *(Dest+2) 	= Source[1];
 	 *(Dest+3) 	= Source[0];
 }
+/**
+ * @brief 处理串口接收到的NJY901S传感器数据
+ * @param ucData 接收到的单字节数据
+ * @note 该函数用于解析NJY901S传感器通过串口发送的数据帧，根据数据帧的类型更新对应的传感器数据结构体。
+ *       数据帧以0x55为起始字节，长度为11字节。根据第二字节的帧类型，解析不同的传感器数据：
+ *       - 0x50: 时间数据
+ *       - 0x51: 加速度数据
+ *       - 0x52: 陀螺仪数据
+ *       - 0x53: 角度数据
+ *       - 0x54: 磁场数据
+ *       - 0x55: 状态数据
+ *       - 0x56: 气压和高度数据
+ *       - 0x57: 经度和纬度数据
+ *       - 0x58: GPS高度、航向和速度数据
+ *       如果数据帧不完整或起始字节不正确，函数会丢弃当前数据并重新开始接收。
+ */
 void CopeSerialData(unsigned char ucData)
 {   
 	static unsigned char ucRxBuffer[12];

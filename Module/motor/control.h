@@ -30,3 +30,4 @@ void open_loop_point_turn_right(void);
 void open_loop_point_turn_right_STOP(void);
 void mode_check(float _cmd_linear_x, float _cmd_angular_z);
 void motor_closeLoop_control(void);
+int avoid_control(void);

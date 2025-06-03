@@ -24,10 +24,24 @@ MAIN_MOTOR_TYPE left_main_motor = {    //motor2 GPIOC
     .speed = 0,
     .distance = 0
 };
-MAIN_MOTOR_TYPE right_main_motor = {   //motor1    GPIOB
+MAIN_MOTOR_TYPE right_main_motor = {   //motor1 GPIOB
     .instance = 1,
     .pwm_num = 1,
     .drc = 0,    //1 增大加速往后    0 增大减速往前
+    .speed = 0,
+    .distance = 0
+};
+MAIN_MOTOR_TYPE fan_motor = {   
+    .instance = 2,
+    .pwm_num = 0,
+    .drc = 0,    
+    .speed = 0,
+    .distance = 0
+};
+MAIN_MOTOR_TYPE sweep_motor = { 
+    .instance = 3,
+    .pwm_num = 0,
+    .drc = 0,    
     .speed = 0,
     .distance = 0
 };
